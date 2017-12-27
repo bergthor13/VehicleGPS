@@ -10,13 +10,18 @@ class UBX_Configurator:
         msgCls = 0x06; msgId = 0x01
         payload = bytes([cls, id, rate])
         self.sendMessage(msgCls, msgId, payload)
+        
+    def setRateSettings(self, measRate, navRate, timeRef):
+        msgCls = 0x06; msgId = 0x08
+        payload = struct.pack('HHH', measRate, navRate, timeRef)
+        self.sendMessage(msgCls, msgId, payload)
     
     def sendMessage(self, cls, id, payload):
         message = bytes([cls, id]) + len(payload).to_bytes(2, byteorder="little") + payload
         checksum = self.calculateChecksum(message)
         solution = bytes([self.syncChar1, self.syncChar2]) + message + checksum
         self.serial.write(solution)
-        
+    
     # B5 62 06 09 0D 00 00 00 00 00 FF FF 00 00 00 00 00 00 17 31 BF
     def saveCurrentSettings(self):
         pass
