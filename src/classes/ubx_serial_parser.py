@@ -6,10 +6,10 @@ from collections import namedtuple
 class UBX_Serial_Parser (threading.Thread):
     syncChar1 = b'\xB5'
     syncChar2 = b'\x62'
-    def __init__(self, serial):
+    def __init__(self, serial, ui):
         threading.Thread.__init__(self)
         self.serial = serial
-        print("parser init")
+        self.ui = ui
         
     def findHeader(self):
         while True:
@@ -42,11 +42,12 @@ class UBX_Serial_Parser (threading.Thread):
         return tuple._make(unpacked)
                 
     def run(self):
-        print("Starting...")
         while True:
             self.findHeader()
             sol = self.unpackSolution()
             if sol == None:
                 continue
-            print(datetime(sol.year, sol.month, sol.day, sol.hour, sol.min, sol.sec), round(sol.gSpeed*3.6/1000, 2))
+            self.ui.updateSpeed(round(sol.gSpeed*3.6/1000, 1))
+            
+            #print(datetime(sol.year, sol.month, sol.day, sol.hour, sol.min, sol.sec), round(sol.gSpeed*3.6/1000, 2))
 
