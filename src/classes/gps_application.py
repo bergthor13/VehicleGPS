@@ -23,8 +23,8 @@ class GPS_Application:
         
     def updatePVT(self, pvt):
         self.pvt = pvt
-        self.ui.updateSpeed(round(self.pvt.gSpeed*3.6/1000, 1))
-        #print(datetime(sol.year, sol.month, sol.day, sol.hour, sol.min, sol.sec), round(sol.gSpeed*3.6/1000, 2))
+        self.ui.updatePVT(pvt)
+        #print(, round(sol.gSpeed*3.6/1000, 2))
         
     def didClickUpdateRate(self, rate):
         self.config.setRateSettings(rate, 1, 1)
