@@ -9,19 +9,22 @@ class GPS_UI (threading.Thread):
     #windowHeight = 480
     windowWidth = 320
     windowHeight = 240
+    
     def __init__(self, app):
         threading.Thread.__init__(self)
         self.lblSpd = None
         self.app = app
     
     def updatePVT(self, pvt):
-        if not self.lblSpd == None:
-            #print("Updating text")
+        if not self.lblSpd is None:
             self.lblSpd.config(text=round(pvt.gSpeed*3.6/1000, 1))
             dateTime = datetime.datetime(pvt.year, pvt.month, pvt.day, pvt.hour, pvt.min, pvt.sec)
             self.sb.dateText.config(text=dateTime.strftime("%d.%m.%Y"))
             self.sb.timeText.config(text=dateTime.strftime("%H:%M:%S"))
     
+    '''
+        asdf
+    '''
     def didClickUpdateRate1000(self):
         self.app.didClickUpdateRate(1000)
     
@@ -48,9 +51,9 @@ class GPS_UI (threading.Thread):
                                  command = self.didClickUpdateRate100)
         self.sb = StatusBar(self.root, width=self.windowWidth, height=20, background='green')
         
-        self.sb.pack()
+        self.sb.pack(fill=X)
         
         self.lblSpd.pack()
-        self.btnRate1000.pack()
-        self.btnRate100.pack()
+        #self.btnRate1000.pack()
+        #self.btnRate100.pack()
         self.root.mainloop()

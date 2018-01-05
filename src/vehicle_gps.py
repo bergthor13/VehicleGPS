@@ -1,4 +1,7 @@
+"""
+App
+"""
 from classes.gps_application import GPS_Application
 
-app = GPS_Application()
-app.start()
+APP = GPS_Application()
+APP.start()
