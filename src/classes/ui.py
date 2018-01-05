@@ -12,16 +12,20 @@ class GPS_UI (threading.Thread):
     windowHeight = 240
     sb = None
     mg1 = None
+    weekdays=["mán","þri","mið","fim","fös","lau","sun"]
     def __init__(self, app):
         threading.Thread.__init__(self)
-        self.lblSpd = None
         self.app = app
     
     def updatePVT(self, pvt):
         if self.mg1 is not None:
-            self.mg1.updateValues(value=round(pvt.gSpeed*3.6/1000, 1))
+            if pvt.gSpeed*3.6/1000 > 0.5:
+                self.mg1.updateValues(value=round(pvt.gSpeed*3.6/1000, 1))
+            else:
+                self.mg1.updateValues(value=0.0)
+
             dateTime = datetime.datetime(pvt.year, pvt.month, pvt.day, pvt.hour, pvt.min, pvt.sec)
-            self.sb.dateText.config(text=dateTime.strftime("%d.%m.%Y"))
+            self.sb.dateText.config(text=dateTime.strftime("{0}, %d.%m.%Y".format(self.weekdays[dateTime.weekday()])))
             self.sb.timeText.config(text=dateTime.strftime("%H:%M:%S"))
     
     '''
@@ -48,8 +52,6 @@ class GPS_UI (threading.Thread):
         self.root.focus_set()
         self.root.configure(background='black')
         self.root.bind("<Escape>", lambda e: e.widget.quit())
-        myFont = tkinter.font.Font(family="Helvetica", size= 60, weight="bold")
-        self.lblSpd = Label(self.root, background='black', fg='green', font=myFont)
         self.btnRate1000 = Button(self.root,
                                   text="1 s Update Rate",
                                   command = self.didClickUpdateRate1000)
@@ -96,7 +98,6 @@ class GPS_UI (threading.Thread):
         self.mg5.grid(row=2, column=1, sticky=N+E+W+S, padx=(0,1))
         self.mg6.grid(row=2, column=2, sticky=N+E+W+S)
         
-        #self.lblSpd.grid()
         #self.btnRate1000.pack()
         #self.btnRate100.pack()
         self.root.config(background="green")

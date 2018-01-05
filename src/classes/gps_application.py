@@ -2,8 +2,6 @@ import serial
 import pyudev
 import threading
 from subprocess import check_output
-
-
 from classes.ubx_configurator import UBX_Configurator
 from classes.ubx_serial_parser import UBX_Serial_Parser
 from classes.ui import GPS_UI
@@ -15,7 +13,7 @@ class GPS_Application:
     pvt = None
     hasInternet = False
     def __init__(self):
-        self.serial = serial.Serial(port="/dev/ttyUSB1", baudrate=38400)
+        self.serial = serial.Serial(port="/dev/ttyUSB0", baudrate=38400)
         self.ui = GPS_UI(self)
         self.config = UBX_Configurator(self.serial)
         self.parser = UBX_Serial_Parser(self.serial, self)

@@ -12,7 +12,7 @@ class MainGauge(Frame):
         self.placeWidgets()
         
     def initialize(self):
-        self.titleFont    = tkinter.font.Font(family="Helvetica", size=7, weight="bold")
+        self.titleFont    = tkinter.font.Font(family="Helvetica", size=7, weight="normal")
         self.valueFont    = tkinter.font.Font(family="Helvetica", size=25, weight="bold")
         self.subvalueFont = tkinter.font.Font(family="Helvetica", size=15, weight="bold")
 

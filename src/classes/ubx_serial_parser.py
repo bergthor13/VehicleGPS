@@ -20,8 +20,16 @@ class UBX_Serial_Parser (threading.Thread):
         cls = self.serial.read()
         id = self.serial.read()
         size = int.from_bytes(self.serial.read(2), byteorder="little")
-        return self.parseSolution(cls, id, self.serial.read(size))
-    
+        payload = self.serial.read(size)
+        #print(type(cls))
+        #print(type(id))
+        #print(type(size.to_bytes(2, byteorder="little")))
+        #print(type(payload))
+        calcChecksum = self.calculateChecksum(cls+id+size.to_bytes(2, byteorder="little")+payload)
+        recvChecksum = self.serial.read(2)
+        if calcChecksum == recvChecksum:
+            return self.parseSolution(cls, id, payload)
+
     def unpackPVT(self, solution):
         return self.getTupleFromMessage(
             solution,
@@ -52,3 +60,15 @@ class UBX_Serial_Parser (threading.Thread):
             if sol == None:
                 continue
             self.app.updatePVT(sol)
+
+    def calculateChecksum(self, message):
+        ckA, ckB = 0, 0
+        
+        for i in range(len(message)):
+            ckA += message[i]
+            ckB += ckA
+        
+        ckA = ckA & 0xFF
+        ckB = ckB & 0xFF
+        
+        return bytes([ckA, ckB])

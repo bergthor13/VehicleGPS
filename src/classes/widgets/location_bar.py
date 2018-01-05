@@ -2,12 +2,8 @@ from tkinter import *
 import tkinter.font
 
 class StatusBar(Frame):
-    dateText = None
-    timeText = None
-    wifiSymbol = None
-    imgWifi = None
-    imgNoWifi = None
-    thisFrame = None
+    latitudeText = None
+    latitudeText = None
     def __init__(self, *args, **kwargs):
         Frame.__init__(self, *args, **kwargs)
         self.initialize()
@@ -15,13 +11,13 @@ class StatusBar(Frame):
         self.placeWidgets()
 
     def initialize(self):
-        self.statusFont = tkinter.font.Font(family="FreeMono", size=10)
+        self.statusFont = tkinter.font.Font(family="Helvetica", size=10, weight="bold")
         self.imgNoWifi = PhotoImage(file="src/img/no-wifi.png")
         self.imgWifi = PhotoImage(file="src/img/wifi.png")
 
     def initializeWidgets(self):
-        self.dateText = Label(self, text="--.--.----", background="green", fg="black", font=self.statusFont)
-        self.timeText = Label(self, text="--:--:--", background="green", fg="black", font=self.statusFont)
+        self.dateText = Label(self, background="green", fg="black", font=self.statusFont)
+        self.timeText = Label(self,background="green", fg="black", font=self.statusFont)
         self.wifiSymbol = Label(self, image=self.imgNoWifi, background="green", fg="black")
 
     def placeWidgets(self):
