@@ -9,7 +9,7 @@ class GPS_UI (threading.Thread):
     #windowHeight = 480
     windowWidth = 320
     windowHeight = 240
-    
+    sb = None
     def __init__(self, app):
         threading.Thread.__init__(self)
         self.lblSpd = None
@@ -33,7 +33,12 @@ class GPS_UI (threading.Thread):
         
     def exit(self):
         self.root.destroy()
-    
+
+    def updateWiFi(self, isConnected):
+        if self.sb is None:
+            return
+        self.sb.updateWifiSymbol(isConnected)
+
     def run(self):
         self.root = Tk()
         self.root.overrideredirect(1)
@@ -51,9 +56,10 @@ class GPS_UI (threading.Thread):
                                  command = self.didClickUpdateRate100)
         self.sb = StatusBar(self.root, width=self.windowWidth, height=20, background='green')
         
-        self.sb.pack(fill=X)
+        self.sb.pack(side="top", fill=X)
         
         self.lblSpd.pack()
         #self.btnRate1000.pack()
         #self.btnRate100.pack()
+        self.root.config(background="red")
         self.root.mainloop()

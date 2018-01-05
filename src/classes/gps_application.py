@@ -1,5 +1,8 @@
 import serial
 import pyudev
+import threading
+from subprocess import check_output
+
 
 from classes.ubx_configurator import UBX_Configurator
 from classes.ubx_serial_parser import UBX_Serial_Parser
@@ -10,12 +13,28 @@ GPSApp
 '''
 class GPS_Application:
     pvt = None
+    hasInternet = False
     def __init__(self):
         self.serial = serial.Serial(port="/dev/ttyUSB1", baudrate=38400)
         self.ui = GPS_UI(self)
         self.config = UBX_Configurator(self.serial)
         self.parser = UBX_Serial_Parser(self.serial, self)
         self.configureUBX()
+        self.checkForInternet()
+        self.tick()
+    
+    def tick(self):
+        self.checkForInternet()
+        threading.Timer(1.0, self.tick).start()
+
+
+    def checkForInternet(self):
+        wifi_ip = check_output(['hostname', '-I'])
+        if wifi_ip is not None:
+            self.hasInternet = True
+        else:
+            self.hasInternet = False
+        self.ui.updateWiFi(self.hasInternet)
 
     def configureUBX(self):
         self.config.setMessageRate(1, 7, 1)
