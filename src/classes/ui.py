@@ -1,6 +1,7 @@
 import threading
 from tkinter import *
 from classes.widgets.status_bar import StatusBar
+from classes.widgets.main_gauge import MainGauge
 import datetime
 import tkinter.font
 
@@ -10,14 +11,15 @@ class GPS_UI (threading.Thread):
     windowWidth = 320
     windowHeight = 240
     sb = None
+    mg1 = None
     def __init__(self, app):
         threading.Thread.__init__(self)
         self.lblSpd = None
         self.app = app
     
     def updatePVT(self, pvt):
-        if not self.lblSpd is None:
-            self.lblSpd.config(text=round(pvt.gSpeed*3.6/1000, 1))
+        if self.mg1 is not None:
+            self.mg1.updateValues(value=round(pvt.gSpeed*3.6/1000, 1))
             dateTime = datetime.datetime(pvt.year, pvt.month, pvt.day, pvt.hour, pvt.min, pvt.sec)
             self.sb.dateText.config(text=dateTime.strftime("%d.%m.%Y"))
             self.sb.timeText.config(text=dateTime.strftime("%H:%M:%S"))
@@ -54,12 +56,48 @@ class GPS_UI (threading.Thread):
         self.btnRate100 = Button(self.root,
                                  text="100 ms Update Rate",
                                  command = self.didClickUpdateRate100)
-        self.sb = StatusBar(self.root, width=self.windowWidth, height=20, background='green')
+        self.sb = StatusBar(self.root, height=20, background='green')
+        self.sb.grid(row=0,column=0, columnspan=3, sticky=W+E)
+        for i in range(0,3):
+            self.root.columnconfigure(i, weight=1, uniform="fred")
+
+        self.root.rowconfigure(1, weight=1)
+        self.root.rowconfigure(2, weight=1)
+
+
+        self.initializeGauges()
+        self.setGaugeTitles()
+        self.placeGauges()
+
+    def initializeGauges(self):
+        self.mg1 = MainGauge(self.root, background='black')
+        self.mg2 = MainGauge(self.root, background='black')
+        self.mg3 = MainGauge(self.root, background='black')
+
+        self.mg4 = MainGauge(self.root, background='black')
+        self.mg5 = MainGauge(self.root, background='black')
+        self.mg6 = MainGauge(self.root, background='black')
+
+    def setGaugeTitles(self):
+        self.mg1.updateValues("SPEED", 10, 1)
+        self.mg2.updateValues("DIRECTION", 10, 1)
+        self.mg3.updateValues("TEMPERATURE", 10, 1)
+
+        self.mg4.updateValues("ALTITUDE", 10, 1)
+        self.mg5.updateValues("SATELLITES", 10, 1)
+        self.mg6.updateValues("POINTS", 10, 1)
+
+    def placeGauges(self):
+        self.mg1.grid(row=1, column=0, sticky=N+E+W+S, pady=(0,1), padx=(0,1))
+        self.mg2.grid(row=1, column=1, sticky=N+E+W+S, pady=(0,1), padx=(0,1))
+        self.mg3.grid(row=1, column=2, sticky=N+E+W+S, pady=(0,1))
         
-        self.sb.pack(side="top", fill=X)
+        self.mg4.grid(row=2, column=0, sticky=N+E+W+S, padx=(0,1))
+        self.mg5.grid(row=2, column=1, sticky=N+E+W+S, padx=(0,1))
+        self.mg6.grid(row=2, column=2, sticky=N+E+W+S)
         
-        self.lblSpd.pack()
+        #self.lblSpd.grid()
         #self.btnRate1000.pack()
         #self.btnRate100.pack()
-        self.root.config(background="red")
+        self.root.config(background="green")
         self.root.mainloop()
