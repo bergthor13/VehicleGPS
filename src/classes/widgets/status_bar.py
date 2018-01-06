@@ -16,8 +16,8 @@ class StatusBar(Frame):
 
     def initialize(self):
         self.statusFont = tkinter.font.Font(family="FreeMono", size=10)
-        self.imgNoWifi = PhotoImage(file="src/img/no-wifi.png")
-        self.imgWifi = PhotoImage(file="src/img/wifi.png")
+        self.imgNoWifi = PhotoImage(file="img/no-wifi.png")
+        self.imgWifi = PhotoImage(file="img/wifi.png")
 
     def initializeWidgets(self):
         self.dateText = Label(self, text="--.--.----", background="green", fg="black", font=self.statusFont)
