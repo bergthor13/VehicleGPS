@@ -4,8 +4,7 @@ from subprocess import check_output
 from classes.ubx_configurator import UBX_Configurator
 from classes.ubx_serial_parser import UBX_Serial_Parser
 from classes.ui import GPS_UI
-from classes.data.pvt.pvt import PVT
-
+from classes.data.pvt import *
 '''
 GPSApp
 '''

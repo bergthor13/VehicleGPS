@@ -1,6 +1,3 @@
-from classes.data.pvt.pvt_valid import PVT_valid
-from classes.data.pvt.pvt_flags import PVT_flags
-from classes.data.pvt.pvt_flags2 import PVT_flags2
 class PVT():
     iTOW = None
     year = None
@@ -66,3 +63,43 @@ class PVT():
         self.headVeh = pvt.headVeh
         self.magDec = pvt.magDec
         self.magAcc = pvt.magAcc
+
+class PVT_valid:
+    validDate = None
+    validTime = None
+    fullyResolved = None
+    validMag = None
+
+    def getBitFromByte(self, byte, index):
+        return not((byte[0] & (1 << index)) == 0)
+
+    def __init__(self, valid):
+        self.validDate     = self.getBitFromByte(valid, 0)
+        self.validTime     = self.getBitFromByte(valid, 1)
+        self.fullyResolved = self.getBitFromByte(valid, 2)
+        self.validMag      = self.getBitFromByte(valid, 3)
+
+class PVT_flags:
+    gnssFixOK    = None
+    diffSoln     = None
+    psmState     = None
+    headVehValid = None
+    carrSoln     = None
+
+    def getBitFromByte(self, byte, index):
+        return not((byte[0] & (1 << index)) == 0)
+
+    def getBitsFromByte(self, byte, start, end):
+        maskSize = (end-start)+c1
+        return byte[0] >> start
+
+    def __init__(self, valid):
+        self.gnssFixOK     = self.getBitFromByte(valid, 0)
+        self.diffSoln      = self.getBitFromByte(valid, 1)
+        #self.psmState      = self.getBitsFromByte(valid, 2, 4)
+        self.headVehValid  = self.getBitFromByte(valid, 5)
+        #self.carrSoln      = self.getBitsFromByte(valid, 6, 7)
+
+class PVT_flags2:
+    def __init__(self, flags2):
+        pass
