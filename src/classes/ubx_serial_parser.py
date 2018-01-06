@@ -25,9 +25,9 @@ class UBX_Serial_Parser (threading.Thread):
         #print(type(id))
         #print(type(size.to_bytes(2, byteorder="little")))
         #print(type(payload))
-        calcChecksum = self.calculateChecksum(cls+id+size.to_bytes(2, byteorder="little")+payload)
-        recvChecksum = self.serial.read(2)
-        if calcChecksum == recvChecksum:
+        calcdChecksum = self.calculateChecksum(cls+id+size.to_bytes(2, byteorder="little")+payload)
+        recvdChecksum = self.serial.read(2)
+        if calcdChecksum == recvdChecksum:
             return self.parseSolution(cls, id, payload)
 
     def unpackPVT(self, solution):
