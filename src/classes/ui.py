@@ -20,7 +20,12 @@ class GPS_UI (threading.Thread):
     
     def updatePVT(self, pvt):
         if self.mg1 is not None:
-            self.mg1.updateValues(value=round(pvt.gSpeed*3.6/1000, 1))
+
+            if pvt.fixType >= 1:
+                self.mg1.updateValues(value=round(pvt.gSpeed*3.6/1000, 1), subvalue=round(pvt.sAcc*3.6/1000,1))
+                self.mg5.updateValues(value=pvt.numSv, subvalue=str(round(pvt.hAcc/1000, 2)) + ' m')
+                self.mg2.updateValues(subvalue=pvt.headMot)
+                self.mg4.updateValues(value=round(pvt.hMSL/1000, 1))
 
             #if pvt.gSpeed*3.6/1000 > 0.5:
             #else:

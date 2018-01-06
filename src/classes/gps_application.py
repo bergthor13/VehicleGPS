@@ -34,7 +34,7 @@ class GPS_Application:
         self.ui.updateWiFi(self.hasInternet)
 
     def configureUBX(self):
-        self.config.forceColdStart()
+        #self.config.forceColdStart()
         self.config.setMessageRate(1, 7, 1)
         self.config.setRateSettings(100, 1, 1)
 
