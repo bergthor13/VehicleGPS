@@ -1,5 +1,6 @@
 import threading
 import struct
+import binascii
 from datetime import datetime
 from collections import namedtuple
 
@@ -21,10 +22,6 @@ class UBX_Serial_Parser (threading.Thread):
         id = self.serial.read()
         size = int.from_bytes(self.serial.read(2), byteorder="little")
         payload = self.serial.read(size)
-        #print(type(cls))
-        #print(type(id))
-        #print(type(size.to_bytes(2, byteorder="little")))
-        #print(type(payload))
         calcdChecksum = self.calculateChecksum(cls+id+size.to_bytes(2, byteorder="little")+payload)
         recvdChecksum = self.serial.read(2)
         if calcdChecksum == recvdChecksum:
@@ -45,7 +42,8 @@ class UBX_Serial_Parser (threading.Thread):
     def parseSolution(self, cls, id, solution):
         if cls == b'\x01':
             if id == b'\x07':
-                return self.unpackPVT(solution)
+                pvtmsg = self.unpackPVT(solution)
+                return pvtmsg
 
 
     def getTupleFromMessage(self, msg, msgFormat, tClass, tVars):

@@ -4,6 +4,7 @@ from subprocess import check_output
 from classes.ubx_configurator import UBX_Configurator
 from classes.ubx_serial_parser import UBX_Serial_Parser
 from classes.ui import GPS_UI
+from classes.data.pvt.pvt import PVT
 
 '''
 GPSApp
@@ -34,16 +35,18 @@ class GPS_Application:
         self.ui.updateWiFi(self.hasInternet)
 
     def configureUBX(self):
+        self.config.forceColdStart()
         self.config.setMessageRate(1, 7, 1)
         self.config.setRateSettings(100, 1, 1)
+
 
     def start(self):
         self.ui.start()
         self.parser.start()
 
     def updatePVT(self, pvt):
-        self.pvt = pvt
-        self.ui.updatePVT(pvt)
+        self.pvt = PVT(pvt)
+        self.ui.updatePVT(self.pvt)
 
     def didClickUpdateRate(self, rate):
         self.config.setRateSettings(rate, 1, 1)

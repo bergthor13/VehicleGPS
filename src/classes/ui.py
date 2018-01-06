@@ -2,6 +2,7 @@ import threading
 from tkinter import *
 from classes.widgets.status_bar import StatusBar
 from classes.widgets.main_gauge import MainGauge
+from classes.data.pvt import *
 import datetime
 import tkinter.font
 
@@ -19,14 +20,17 @@ class GPS_UI (threading.Thread):
     
     def updatePVT(self, pvt):
         if self.mg1 is not None:
-            if pvt.gSpeed*3.6/1000 > 0.5:
-                self.mg1.updateValues(value=round(pvt.gSpeed*3.6/1000, 1))
-            else:
-                self.mg1.updateValues(value=0.0)
+            self.mg1.updateValues(value=round(pvt.gSpeed*3.6/1000, 1))
+
+            #if pvt.gSpeed*3.6/1000 > 0.5:
+            #else:
+            #    self.mg1.updateValues(value=0.0)
 
             dateTime = datetime.datetime(pvt.year, pvt.month, pvt.day, pvt.hour, pvt.min, pvt.sec)
-            self.sb.dateText.config(text=dateTime.strftime("{0}, %d.%m.%Y".format(self.weekdays[dateTime.weekday()])))
-            self.sb.timeText.config(text=dateTime.strftime("%H:%M:%S"))
+            if pvt.valid.validDate:
+                self.sb.dateText.config(text=dateTime.strftime("{0}, %d.%m.%Y".format(self.weekdays[dateTime.weekday()])))
+            if pvt.valid.validTime:
+                self.sb.timeText.config(text=dateTime.strftime("%H:%M:%S"))
     
     '''
         asdf
@@ -81,13 +85,13 @@ class GPS_UI (threading.Thread):
         self.mg6 = MainGauge(self.root, background='black')
 
     def setGaugeTitles(self):
-        self.mg1.updateValues("SPEED", 10, 1)
-        self.mg2.updateValues("DIRECTION", 10, 1)
-        self.mg3.updateValues("TEMPERATURE", 10, 1)
+        self.mg1.updateValues(title="HRAÐI")
+        self.mg2.updateValues(title="ÁTT")
+        self.mg3.updateValues(title="HITI")
 
-        self.mg4.updateValues("ALTITUDE", 10, 1)
-        self.mg5.updateValues("SATELLITES", 10, 1)
-        self.mg6.updateValues("POINTS", 10, 1)
+        self.mg4.updateValues(title="HÆÐ Y. S.")
+        self.mg5.updateValues(title="GERVITUNGL")
+        self.mg6.updateValues(title="PUNKTAR")
 
     def placeGauges(self):
         self.mg1.grid(row=1, column=0, sticky=N+E+W+S, pady=(0,1), padx=(0,1))

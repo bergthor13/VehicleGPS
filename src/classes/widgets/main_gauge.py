@@ -13,8 +13,8 @@ class MainGauge(Frame):
         
     def initialize(self):
         self.titleFont    = tkinter.font.Font(family="Helvetica", size=7, weight="normal")
-        self.valueFont    = tkinter.font.Font(family="Helvetica", size=25, weight="bold")
-        self.subvalueFont = tkinter.font.Font(family="Helvetica", size=15, weight="bold")
+        self.valueFont    = tkinter.font.Font(family="FreeMono", size=25, weight="bold")
+        self.subvalueFont = tkinter.font.Font(family="FreeMono", size=15, weight="bold")
 
     def initializeWidgets(self):
         self.titleText     = Label(self, text="---", background="black", fg="green",  font=self.titleFont)
@@ -22,9 +22,9 @@ class MainGauge(Frame):
         self.gaugeSubvalue = Label(self, text="--.-", background="black", fg="green", font=self.subvalueFont)
 
     def placeWidgets(self):
-        self.titleText.pack()
-        self.gaugeValue.pack()
-        self.gaugeSubvalue.pack()
+        self.titleText.pack(pady=(5,0))
+        self.gaugeValue.pack(pady=(5,0))
+        self.gaugeSubvalue.pack(pady=(5,0))
 
     def updateValues(self, title = None, value = None, subvalue = None):
         if title is not None:
