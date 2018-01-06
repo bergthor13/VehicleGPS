@@ -1,5 +1,4 @@
 import serial
-import pyudev
 import threading
 from subprocess import check_output
 from classes.ubx_configurator import UBX_Configurator
@@ -28,7 +27,7 @@ class GPS_Application:
 
     def checkForInternet(self):
         wifi_ip = check_output(['hostname', '-I'])
-        if wifi_ip is not None:
+        if not (wifi_ip == b'\n'):
             self.hasInternet = True
         else:
             self.hasInternet = False
