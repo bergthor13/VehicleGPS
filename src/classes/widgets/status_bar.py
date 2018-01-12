@@ -8,6 +8,7 @@ class StatusBar(Frame):
     imgWifi = None
     imgNoWifi = None
     thisFrame = None
+    weekdays=["mán","þri","mið","fim","fös","lau","sun"]
     def __init__(self, *args, **kwargs):
         Frame.__init__(self, *args, **kwargs)
         self.initialize()
@@ -15,7 +16,7 @@ class StatusBar(Frame):
         self.placeWidgets()
 
     def initialize(self):
-        self.statusFont = tkinter.font.Font(family="FreeMono", size=10)
+        self.statusFont = tkinter.font.Font(family="FreeMono", size=12, weight="bold")
         self.imgNoWifi = PhotoImage(file="img/no-wifi.png")
         self.imgWifi = PhotoImage(file="img/wifi.png")
 
@@ -29,6 +30,12 @@ class StatusBar(Frame):
         self.timeText.pack(side=RIGHT, padx=(0,3))
         self.wifiSymbol.pack(side=RIGHT, padx=(0,3))
 
+    def setDate(self, date):
+        self.weekday = self.weekdays[date.weekday()]
+        self.dateText.config(text=date.strftime("{0}, %d.%m.%Y".format(self.weekday)))
+
+    def setTime(self, date):
+        self.timeText.config(text=date.strftime("%H:%M:%S"))
 
     def updateWifiSymbol(self, hasInternet):
         if hasInternet:

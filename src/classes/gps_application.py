@@ -9,7 +9,6 @@ from classes.data.pvt import *
 GPSApp
 '''
 class GPS_Application:
-    pvt = None
     hasInternet = False
     def __init__(self):
         self.serial = serial.Serial(port="/dev/ttyAMA0", baudrate=38400)
@@ -43,9 +42,8 @@ class GPS_Application:
         self.ui.start()
         self.parser.start()
 
-    def updatePVT(self, pvt):
-        self.pvt = PVT(pvt)
-        self.ui.updatePVT(self.pvt)
+    def notify(self, pvt):
+        self.ui.updatePVT(PVT(pvt))
 
     def didClickUpdateRate(self, rate):
         self.config.setRateSettings(rate, 1, 1)

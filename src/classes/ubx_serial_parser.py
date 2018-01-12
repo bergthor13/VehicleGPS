@@ -57,7 +57,7 @@ class UBX_Serial_Parser (threading.Thread):
             sol = self.unpackSolution()
             if sol == None:
                 continue
-            self.app.updatePVT(sol)
+            self.app.notify(sol)
 
     def calculateChecksum(self, message):
         ckA, ckB = 0, 0

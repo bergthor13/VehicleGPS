@@ -1,3 +1,5 @@
+from datetime import datetime
+
 class PVT():
     iTOW = None
     year = None
@@ -41,13 +43,16 @@ class PVT():
         self.sec = pvt.sec
         self.valid = PVT_valid(pvt.valid)
         self.tAcc = pvt.tAcc
-        self.nano = pvt.nano
+        if pvt.nano < 0:
+            self.nano = 1000000000+pvt.nano
+        else:
+            self.nano = pvt.nano
         self.fixType = pvt.fixType
         self.flags = PVT_flags(pvt.flags)
         self.flags2 = PVT_flags2(pvt.flags2)
         self.numSv = pvt.numSv
-        self.lon = pvt.lon
-        self.lat = pvt.lat
+        self.lon = pvt.lon/10000000
+        self.lat = pvt.lat/10000000
         self.height = pvt.height
         self.hMSL = pvt.hMSL
         self.hAcc = pvt.hAcc
@@ -55,7 +60,7 @@ class PVT():
         self.velN = pvt.velN
         self.velE = pvt.velE
         self.velD = pvt.velD
-        self.gSpeed = pvt.gSpeed
+        self.gSpeed = pvt.gSpeed*3.6/1000
         self.headMot = pvt.headMot
         self.sAcc = pvt.sAcc
         self.headAcc = pvt.headAcc
@@ -63,6 +68,9 @@ class PVT():
         self.headVeh = pvt.headVeh
         self.magDec = pvt.magDec
         self.magAcc = pvt.magAcc
+
+    def getDate(self):
+        return datetime(self.year, self.month, self.day, self.hour, self.min, self.sec, round(self.nano/1000))
 
 class PVT_valid:
     validDate = None
