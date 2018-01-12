@@ -30,7 +30,7 @@ class MainGauge(Frame):
     def placeWidgets(self):
         if self.gaugeLayout == 0:
             self.titleText.pack(pady=(5,0))
-            self.gaugeValue.pack(pady=(5,0))
+            self.gaugeValue.pack(pady=(0,0))
             self.gaugeSubvalue.pack(pady=(0,0))
             self.gaugeSubvalue2.pack(pady=(0,0))
 
