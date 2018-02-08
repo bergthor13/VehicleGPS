@@ -1,5 +1,6 @@
 import serial
 import threading
+from datetime import datetime
 from subprocess import check_output
 from classes.ubx_configurator import UBX_Configurator
 from classes.ubx_serial_parser import UBX_Serial_Parser
@@ -11,6 +12,7 @@ GPSApp
 class GpsApplication:
     hasInternet = False
     oldData = {}
+    logFile = None
     def __init__(self):
         self.serial = serial.Serial(port="/dev/ttyAMA0", baudrate=38400)
         self.ui = GPS_UI(self)
@@ -19,6 +21,9 @@ class GpsApplication:
         self.configureUBX()
         self.checkForInternet()
         self.tick()
+        time = datetime.now()
+        filename = time.strftime("%Y-%m-%d %H%M%S.csv")
+        self.logFile = open(filename, 'a')
 
     ### INITIALIZATION
     '''
@@ -62,5 +67,6 @@ class GpsApplication:
     def notify(self, solution):
         # TODO: check if PVT
         myPvt = PVT(solution)
+        self.logFile.write(str(myPvt) + '\n')
         self.ui.updatePVT(myPvt)
         self.oldData['PVT'] = myPvt

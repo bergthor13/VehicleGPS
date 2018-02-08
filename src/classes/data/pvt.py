@@ -71,7 +71,9 @@ class PVT():
 
     def getDate(self):
         return datetime(self.year, self.month, self.day, self.hour, self.min, self.sec, round(self.nano/1000))
-        
+    
+    def __str__(self):
+        return str(self.iTOW) + ", " + str(self.year) + ", " + str(self.month) + ", " + str(self.day) + ", " + str(self.hour) + ", " + str(self.min) + ", " + str(self.sec) + ", " + ", " + str(self.tAcc) + ", " + str(self.nano) + ", " + str(self.fixType) + ", " + ", " + str(self.numSv) + ", " + str(self.lon) + ", " + str(self.lat) + ", " + str(self.height) + ", " + str(self.hMSL) + ", " + str(self.hAcc) + ", " + str(self.vAcc) + ", " + str(self.velN) + ", " + str(self.velE) + ", " + str(self.velD) + ", " + str(self.gSpeed) + ", " + str(self.headMot) + ", " + str(self.sAcc) + ", " + str(self.headAcc) + ", " + str(self.pDop) + ", " + str(self.headVeh) + ", " + str(self.magDec) + ", " + str(self.magAcc)
 
 class PVT_valid:
     validDate = None
