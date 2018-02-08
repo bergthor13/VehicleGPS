@@ -45,27 +45,36 @@ class GPS_UI (threading.Thread):
                 accel = self.calculateAcceleration(self.oldPvt, pvt)
                 self.setAcceleration(accel)
             else:
-                self.speedGauge.updateValues(value=0.0, subvalue=0.0)
+                self.setSpeed(0.0)
+                self.setAcceleration(0.0)
             
-            rndAvgSp = round(self.calculateAverageSpeed(pvt), 1)
-            self.speedGauge.updateValues(subvalue2=rndAvgSp)
+            avgSpeed = self.calculateAverageSpeed(pvt)
+            self.setAverageSpeed(avgSpeed)
+
             self.distanceGauge.updateValues(value=pvt.numSv, subvalue=str(round(pvt.hAcc/1000, 2)) + ' m')
             self.altitudeGauge.updateValues(value=round(pvt.hMSL/1000, 1))
             self.directionGauge.updateValues(subvalue=round(pvt.headMot/100000, 1))
 
-        if pvt.valid.validDate:
-            self.statusBar.setDate(pvt.getDate())
+        self.setDate(pvt.valid, pvt.getDate())
 
-        if pvt.valid.validTime:
-            self.statusBar.setTime(pvt.getDate())
         self.calculateAverageSpeed(pvt)
         self.oldPvt = pvt
+
+    def setDate(self, valid, date):
+        if valid.validDate:
+            self.statusBar.setDate(date)
+
+        if valid.validTime:
+            self.statusBar.setTime(date)
 
     def setSpeed(self, speed):
         self.speedGauge.updateValues(value=round(speed,1))
 
     def setAcceleration(self, acceleration):
         self.speedGauge.updateValues(subvalue=round(acceleration,1))
+
+    def setAverageSpeed(self, avgSpeed):
+        self.speedGauge.updateValues(subvalue2=round(avgSpeed,1))
 
     def calculateAcceleration(self, oldPvt, pvt):
         newTime = pvt.getDate()
@@ -161,7 +170,7 @@ class GPS_UI (threading.Thread):
 
         self.altitudeGauge.grid(row=2, column=0, sticky=N+E+W+S, padx=(0,1))
         self.distanceGauge.grid(row=2, column=1, sticky=N+E+W+S, padx=(0,1))
-        self.directionGauge.grid(row=2, column=2, sticky=N+E+W+S, pady=(0,1))
+        self.directionGauge.grid(row=2, column=2, sticky=N+E+W+S)
 
         
         #self.btnRate1000.pack()
