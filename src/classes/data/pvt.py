@@ -43,7 +43,7 @@ class PVT():
         self.sec = pvt.sec
         self.valid = PVT_valid(pvt.valid)
         self.tAcc = pvt.tAcc
-        if pvt.nano <= 0:
+        if pvt.nano < 0:
             self.nano = 1000000000+pvt.nano
         else:
             self.nano = pvt.nano
@@ -70,11 +70,7 @@ class PVT():
         self.magAcc = pvt.magAcc
 
     def getDate(self):
-        try:
-            return datetime(self.year, self.month, self.day, self.hour, self.min, self.sec, round(self.nano/1000))
-        except:
-            print(round(self.nano/1000))
-            return datetime(self.year, self.month, self.day, self.hour, self.min, self.sec)
+        return datetime(self.year, self.month, self.day, self.hour, self.min, self.sec, round(self.nano/1000))
         
 
 class PVT_valid:
