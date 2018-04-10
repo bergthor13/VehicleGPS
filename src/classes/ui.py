@@ -12,7 +12,7 @@ class GPS_UI (threading.Thread):
     windowHeight = 240
     statusBar = None
     speedGauge = None
-    directionGauge = None
+    satelliteGauge = None
     consumptionGauge = None
     altitudeGauge = None
     distanceGauge = None
@@ -29,7 +29,7 @@ class GPS_UI (threading.Thread):
             return
         
         if (self.speedGauge is None or
-            self.directionGauge is None or
+            self.satelliteGauge is None or
             self.altitudeGauge is None):
             return
 
@@ -51,14 +51,15 @@ class GPS_UI (threading.Thread):
             avgSpeed = self.calculateAverageSpeed(pvt)
             self.setAverageSpeed(avgSpeed)
 
-            self.distanceGauge.updateValues(value=pvt.numSv, subvalue=str(round(pvt.hAcc/1000, 2)) + ' m')
+            self.satelliteGauge.updateValues(value=pvt.numSv, subvalue=str(round(pvt.hAcc/1000, 2)) + ' m')
             self.altitudeGauge.updateValues(value=round(pvt.hMSL/1000, 1))
-            self.directionGauge.updateValues(subvalue=round(pvt.headMot/100000, 1))
+            #self.satelliteGauge.updateValues(subvalue=round(pvt.headMot/100000, 1))
 
         self.setDate(pvt.valid, pvt.getDate())
 
         self.calculateAverageSpeed(pvt)
         self.oldPvt = pvt
+        self.distanceGauge.updateValues(value=round(self.distance/1000,1))
 
     def setDate(self, valid, date):
         if valid.validDate:
@@ -68,7 +69,7 @@ class GPS_UI (threading.Thread):
             self.statusBar.setTime(date)
 
     def setSpeed(self, speed):
-        self.speedGauge.updateValues(value=round(speed,1))
+        self.speedGauge.updateValues(value=int(round(speed,0)))
 
     def setAcceleration(self, acceleration):
         self.speedGauge.updateValues(subvalue=round(acceleration,1))
@@ -125,7 +126,7 @@ class GPS_UI (threading.Thread):
         # self.btnRate100 = Button(self.root,
         #                          text="100 ms Update Rate",
         #                          command = self.didClickUpdateRate100)
-        self.statusBar = StatusBar(self.root, height=20, background='green')
+        self.statusBar = StatusBar(self.root, height=20, background='black')
         self.statusBar.grid(row=0,column=0, columnspan=3, sticky=W+E)
         self.statusBar.bind('<Button-1>', self.didClickSettings)
 
@@ -141,13 +142,13 @@ class GPS_UI (threading.Thread):
         self.placeGauges()
 
     def initializeGauges(self):
-        self.speedGauge = MainGauge(self.root, background='black')
-        self.directionGauge = MainGauge(self.root, background='black')
-        self.consumptionGauge = MainGauge(self.root, background='black')
+        self.speedGauge = MainGauge(self.root, background='white')
+        self.satelliteGauge = MainGauge(self.root, background='white')
+        self.consumptionGauge = MainGauge(self.root, background='white')
 
-        self.altitudeGauge = MainGauge(self.root, background='black')
-        self.distanceGauge = MainGauge(self.root, background='black')
-        self.engineGauge = MainGauge(self.root, background='black')
+        self.altitudeGauge = MainGauge(self.root, background='white')
+        self.distanceGauge = MainGauge(self.root, background='white')
+        self.engineGauge = MainGauge(self.root, background='white')
 
         self.consumptionGauge.updateValues(value="10.4", subvalue="7.3", subvalue2="10.223 L")
         self.engineGauge.updateValues(value="55%", subvalue="90°C", subvalue2="13.0 V")
@@ -156,7 +157,7 @@ class GPS_UI (threading.Thread):
 
     def setGaugeTitles(self):
         self.speedGauge.updateValues(title="HRAÐI (km/klst)")
-        self.directionGauge.updateValues(title="ÁTT")
+        self.satelliteGauge.updateValues(title="MERKI")
         self.consumptionGauge.updateValues(title="EYÐSLA (L/100 km)")
 
         self.altitudeGauge.updateValues(title="HÆÐ Y. S.")
@@ -170,10 +171,10 @@ class GPS_UI (threading.Thread):
 
         self.altitudeGauge.grid(row=2, column=0, sticky=N+E+W+S, padx=(0,1))
         self.distanceGauge.grid(row=2, column=1, sticky=N+E+W+S, padx=(0,1))
-        self.directionGauge.grid(row=2, column=2, sticky=N+E+W+S)
+        self.satelliteGauge.grid(row=2, column=2, sticky=N+E+W+S)
 
         
         #self.btnRate1000.pack()
         #self.btnRate100.pack()
-        self.root.config(background="green")
+        self.root.config(background="black")
         self.root.mainloop()

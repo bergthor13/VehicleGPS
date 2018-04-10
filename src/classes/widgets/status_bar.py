@@ -21,9 +21,9 @@ class StatusBar(Frame):
         self.imgWifi = PhotoImage(file="img/wifi.png")
 
     def initializeWidgets(self):
-        self.dateText = Label(self, text="---, --.--.----", background="green", fg="black", font=self.statusFont)
-        self.timeText = Label(self, text="--:--:--", background="green", fg="black", font=self.statusFont)
-        self.wifiSymbol = Label(self, image=self.imgNoWifi, background="green", fg="black")
+        self.dateText = Label(self, text="---, --.--.----", background="black", fg="white", font=self.statusFont)
+        self.timeText = Label(self, text="--:--:--", background="black", fg="white", font=self.statusFont)
+        self.wifiSymbol = Label(self, image=self.imgNoWifi, background="black", fg="white")
 
     def placeWidgets(self):
         self.dateText.pack(side=LEFT, padx=(3,0))
