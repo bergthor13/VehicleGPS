@@ -76,6 +76,28 @@ class GPS_UI (threading.Thread):
 
     def setAverageSpeed(self, avgSpeed):
         self.speedGauge.updateValues(subvalue2=round(avgSpeed,1))
+    
+    def setEngineTemp(self, temp):
+        if self.engineGauge is None:
+            return
+        self.engineGauge.updateValues(subvalue=str(temp)+"°C")
+
+    def setEngineLoad(self, load):
+        if self.engineGauge is None:
+            return
+        self.engineGauge.updateValues(value=str(round(load,1))+"%")
+
+    def setEngineRPM(self, rpm):
+        if self.engineGauge is None:
+            return
+        self.engineGauge.updateValues(subvalue2=str(round(rpm)))
+
+
+    def setVoltage(self, voltage):
+        if self.engineGauge is None:
+            return
+        self.engineGauge.updateValues(value=voltage)
+
 
     def calculateAcceleration(self, oldPvt, pvt):
         newTime = pvt.getDate()
