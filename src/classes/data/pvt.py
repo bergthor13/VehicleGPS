@@ -55,9 +55,9 @@ class PVT():
         self.lon = pvt.lon/10000000
         self.lat = pvt.lat/10000000
         self.height = pvt.height
-        self.hMSL = pvt.hMSL
-        self.hAcc = pvt.hAcc
-        self.vAcc = pvt.vAcc
+        self.hMSL = pvt.hMSL/1000.0
+        self.hAcc = pvt.hAcc/1000.0
+        self.vAcc = pvt.vAcc/1000.0
         self.velN = pvt.velN
         self.velE = pvt.velE
         self.velD = pvt.velD
@@ -65,7 +65,7 @@ class PVT():
         self.headMot = pvt.headMot
         self.sAcc = pvt.sAcc
         self.headAcc = pvt.headAcc
-        self.pDop = pvt.pDop
+        self.pDop = pvt.pDop/100.0
         self.headVeh = pvt.headVeh
         self.magDec = pvt.magDec
         self.magAcc = pvt.magAcc
@@ -79,7 +79,7 @@ class PVT():
         return datetime(self.year, self.month, self.day, self.hour, self.min, self.sec, checkedNano)
     
     def __str__(self):
-        return str(self.iTOW) + ", " + str(self.year) + ", " + str(self.month) + ", " + str(self.day) + ", " + str(self.hour) + ", " + str(self.min) + ", " + str(self.sec) + ", " + ", " + str(self.tAcc) + ", " + str(self.nano) + ", " + str(self.fixType) + ", " + ", " + str(self.numSv) + ", " + str(self.lon) + ", " + str(self.lat) + ", " + str(self.height) + ", " + str(self.hMSL) + ", " + str(self.hAcc) + ", " + str(self.vAcc) + ", " + str(self.velN) + ", " + str(self.velE) + ", " + str(self.velD) + ", " + str(self.gSpeed) + ", " + str(self.headMot) + ", " + str(self.sAcc) + ", " + str(self.headAcc) + ", " + str(self.pDop) + ", " + str(self.headVeh) + ", " + str(self.magDec) + ", " + str(self.magAcc)
+        return "$GPS," + self.getDate().isoformat() + "," + str(self.lat) + "," + str(self.lon) + "," + str(self.hMSL) + "," + str(self.numSv) + "," + str(self.hAcc) + "," + str(self.vAcc) + "," + str(self.pDop) + "," + str(self.flags) + "," + str(self.valid)
 
 class PVT_valid:
     validDate = None
@@ -95,6 +95,9 @@ class PVT_valid:
         self.validTime     = self.getBitFromByte(valid, 1)
         self.fullyResolved = self.getBitFromByte(valid, 2)
         self.validMag      = self.getBitFromByte(valid, 3)
+
+    def __str__(self):
+        return str(self.fullyResolved)
 
 class PVT_flags:
     gnssFixOK    = None
@@ -116,6 +119,9 @@ class PVT_flags:
         #self.psmState      = self.getBitsFromByte(valid, 2, 4)
         self.headVehValid  = self.getBitFromByte(valid, 5)
         #self.carrSoln      = self.getBitsFromByte(valid, 6, 7)
+
+    def __str__(self):
+        return str(self.gnssFixOK)
 
 class PVT_flags2:
     def __init__(self, flags2):

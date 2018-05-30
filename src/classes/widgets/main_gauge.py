@@ -24,8 +24,8 @@ class MainGauge(Frame):
         self.titleText     = Label(self, text="---", background="white", fg="black",  font=self.titleFont)
         self.titleText2     = Label(self, text="---", background="white", fg="black",  font=self.titleFont)
         self.gaugeValue    = Label(self, text="--.-", background="white", fg="black", font=self.valueFont)
-        self.gaugeSubvalue = Label(self, text="", background="white", fg="black", font=self.subvalueFont)
-        self.gaugeSubvalue2 = Label(self, text="", background="white", fg="black", font=self.subvalueFont)
+        self.gaugeSubvalue = Label(self, text="--.-", background="white", fg="black", font=self.subvalueFont)
+        self.gaugeSubvalue2 = Label(self, text="--.-", background="white", fg="black", font=self.subvalueFont)
 
     def placeWidgets(self):
         if self.gaugeLayout == 0:
