@@ -40,10 +40,11 @@ class GPS_UI (threading.Thread):
             self.startDate = pvt.getDate()
             self.oldPvt = pvt
             return
+        roundedSpeed = (pvt.gSpeed+self.oldPvt.gSpeed)/2.0
         if pvt.fixType >= 1:
-            if True:#pvt.gSpeed > 0.5:
+            if roundedSpeed > 0.5:
                 self.distance += vincenty((self.oldPvt.lat, self.oldPvt.lon), (pvt.lat, pvt.lon)).meters
-                self.setSpeed(pvt.gSpeed)
+                self.setSpeed(roundedSpeed)
                 accel = self.calculateAcceleration(self.oldPvt, pvt)
                 self.setAcceleration(accel)
             else:
@@ -59,7 +60,6 @@ class GPS_UI (threading.Thread):
             hours, remainder = divmod(onSeconds, 3600)
             minutes, seconds = divmod(remainder, 60)
             self.distanceGauge.updateValues(subvalue='%02d:%02d:%02d' % (hours, minutes, seconds))
-
             if onSeconds > 3600:
                 self.distanceGauge.updateValues(subvalue='%02d:%02d:%02d' % (hours, minutes, seconds))
             else:
@@ -146,13 +146,11 @@ class GPS_UI (threading.Thread):
             
             # Engine has started.
             if self.engineRunning == False and rpm != 0.0:
-                print("Engine has started")
                 if self.oldPvt is not None:
                     self.engineStartTime = self.oldPvt.getDate()
             
             # Engine has stopped
             if self.engineRunning == True and rpm == 0.0:
-                print("Engine has stopped")
                 if self.oldPvt is not None and self.oldPvt.getDate() is not None:
                     self.engineRunSeconds += (self.oldPvt.getDate()-self.engineStartTime).total_seconds()
             
@@ -175,6 +173,7 @@ class GPS_UI (threading.Thread):
         else:
             self.consumptionGauge.updateValues(value="-")
             self.engineGauge.updateValues(subvalue2="----")
+            self.distanceGauge.updateValues(subvalue2="00:00")
 
     def setThrottlePos(self, throttle):
         if self.consumptionGauge is None:
@@ -221,7 +220,7 @@ class GPS_UI (threading.Thread):
 
         spdDiff = newSpeed-oldSpeed
         timDiff = (newTime-oldTime).microseconds
-        print(newSpeed, oldSpeed, spdDiff, timDiff, spdDiff*(timDiff/1000000))
+        #print(newSpeed, oldSpeed, spdDiff, timDiff, spdDiff*(timDiff/1000000))
         return spdDiff*(timDiff/1000000)
 
     def calculateAverageSpeed(self, pvt):
