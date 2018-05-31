@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class PVT():
     iTOW = None
@@ -76,7 +76,10 @@ class PVT():
             checkedNano = 0
         elif checkedNano > 999999:
             checkedNano = 999999
-        return datetime(self.year, self.month, self.day, self.hour, self.min, self.sec, checkedNano)
+        date = datetime(self.year, self.month, self.day, self.hour, self.min, self.sec, checkedNano)
+        if checkedNano > 999000:
+            date = date - timedelta(seconds=1)
+        return date
     
     def __str__(self):
         return "$GPS," + self.getDate().isoformat() + "," + str(self.lat) + "," + str(self.lon) + "," + str(self.hMSL) + "," + str(self.numSv) + "," + str(self.hAcc) + "," + str(self.vAcc) + "," + str(self.pDop) + "," + str(self.flags) + "," + str(self.valid)
