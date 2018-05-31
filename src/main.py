@@ -1,12 +1,8 @@
 """
 App
 """
-print("Importing OS")
-
 import os
-print("Importing GPS Application")
 from classes.gps_application import GpsApplication
-print("Importing Constants")
 import constants
 
 abspath = os.path.abspath(__file__)
