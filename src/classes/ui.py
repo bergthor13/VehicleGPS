@@ -288,7 +288,7 @@ class GPS_UI (threading.Thread):
     def setGaugeTitles(self):
         self.speedGauge.updateValues(title="HRAÐI (km/klst)")
         self.satelliteGauge.updateValues(title="MERKI")
-        self.consumptionGauge.updateValues(title="EYÐSLA (L/100 km)")
+        self.consumptionGauge.updateValues(title="GÍR, ÚTIHITI, GJÖF")
 
         self.altitudeGauge.updateValues(title="HÆÐ Y. S.")
         self.distanceGauge.updateValues(title="FERÐ")
