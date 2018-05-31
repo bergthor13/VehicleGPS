@@ -23,24 +23,17 @@ class GpsApplication:
     oldData = {}
     logFile = None
     def __init__(self):
-        print("Initializing GPS Serial")
         self.serial = serial.Serial(port="/dev/ttyAMA0", baudrate=38400)
-        print("Initializing UI")
         self.ui = GPS_UI(self)
-        print("Initializing UBX Configurator")
         self.config = UBX_Configurator(self.serial)
-        print("Initializing UBX Serial Parser")
         self.parser = UBX_Serial_Parser(self.serial, self)
-        print("Initializing OBD Communicator")
         self.obd_comm = OBD_Communicator(self)
-        print("Configuring UBX")
         self.configureUBX()
         #self.checkForInternet()
         #self.tick()
         time = datetime.now()
         filename = time.strftime("%Y-%m-%d %H%M%S.csv")
         filepath = os.path.join(constants.LOG_DIRECTORY, filename)
-        print(filepath)
         self.logFile = open(filepath, 'a')
         for obdType in constants.OBDTypes.getAllTypes():
             self.oldData[obdType] = None
