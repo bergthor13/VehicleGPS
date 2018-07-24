@@ -1,10 +1,10 @@
+"""The UI of the device."""
 import threading
-from tkinter import *
+from tkinter import Tk, N, S, E, W
 from classes.widgets.status_bar import StatusBar
 from classes.widgets.main_gauge import MainGauge
 from classes.data.pvt import *
 from datetime import datetime
-import tkinter.font
 from geopy.distance import vincenty
 
 class GPS_UI (threading.Thread):
@@ -48,8 +48,10 @@ class GPS_UI (threading.Thread):
             self.satelliteGauge is None or
             self.altitudeGauge is None):
             return
-        if pvt.hAcc > 1000:
-            self.satelliteGauge.update_values(value=pvt.numSv, subvalue="NO FIX")
+        
+        self.setDate(pvt.valid, pvt.getDate())
+        if not pvt.flags.gnssFixOK:
+            self.satelliteGauge.update_values(value=pvt.numSv, subvalue="EKKERT", subvalue2="MERKI")
         else:
             self.satelliteGauge.update_values(value=pvt.numSv, subvalue=str(round(pvt.hAcc, 2)) + ' m', subvalue2=str(round(pvt.pDop, 2)))
 
@@ -84,8 +86,6 @@ class GPS_UI (threading.Thread):
                 self.distanceGauge.update_values(subvalue='%02d:%02d:%02d' % (hours, minutes, seconds))
             else:
                 self.distanceGauge.update_values(subvalue='%02d:%02d' % (minutes, seconds))
-
-        self.setDate(pvt.valid, pvt.getDate())
 
         self.calculateAverageSpeed(pvt)
         self.oldOldPvt = self.oldPvt
@@ -274,7 +274,7 @@ class GPS_UI (threading.Thread):
     def updateWiFi(self, isConnected):
         if self.statusBar is None:
             return
-        self.statusBar.updateWifiSymbol(isConnected)
+        self.statusBar.update_wifi_symbol(isConnected)
 
     def didClickSettings(self, event):
         print("Settings Clicked")

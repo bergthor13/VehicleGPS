@@ -30,8 +30,8 @@ class GpsApplication:
         self.ui = GPS_UI(self)
         self.config = UBX_Configurator(self.serial)
         
+        self.checkForInternet()
         self.tick()
-        #self.checkForInternet()
         
         time = datetime.now()
         filename = time.strftime("%Y-%m-%d %H%M%S.csv")
@@ -104,7 +104,7 @@ class GpsApplication:
         Even if the GPS or OBD-II do not work.
     '''
     def tick(self):
-        #self.checkForInternet()
+        self.checkForInternet()
         if not self.hasGPSConnection:
             self.initializeGpsConnection()
         if not self.hasOBDConnection:
