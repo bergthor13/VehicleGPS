@@ -12,7 +12,7 @@ from subprocess import check_output
 from classes.ubx_configurator import UBX_Configurator
 from classes.ubx_serial_parser import UBX_Serial_Parser
 from classes.obd_communicator import OBD_Communicator
-from classes.ui import GPS_UI
+from classes.ui_controller import UI_Controller
 from classes.data.pvt import *
 '''
 GPSApp
@@ -23,11 +23,12 @@ class GpsApplication:
     logFile = None
     hasGPSConnection = False
     hasOBDConnection = False
+    
     def __init__(self):
         self.initializeGpsConnection()
         self.initializeObdConnection()
         
-        self.ui = GPS_UI(self)
+        self.ui = UI_Controller(self)
         self.config = UBX_Configurator(self.serial)
         
         self.checkForInternet()

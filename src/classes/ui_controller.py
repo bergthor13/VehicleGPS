@@ -7,7 +7,7 @@ from classes.data.pvt import *
 from datetime import datetime
 from geopy.distance import vincenty
 
-class GPS_UI (threading.Thread):
+class UI_Controller (threading.Thread):
     windowWidth = 320
     windowHeight = 240
     statusBar = None
