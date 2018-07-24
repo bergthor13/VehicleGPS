@@ -1,44 +1,69 @@
-from tkinter import *
-import tkinter.font
+"""File containing a class for the status bar."""
+from tkinter import Label, PhotoImage, Frame, LEFT, RIGHT
+from tkinter import font
 
-class StatusBar(Frame):
-    dateText = None
-    timeText = None
-    wifiSymbol = None
-    imgWifi = None
-    imgNoWifi = None
-    thisFrame = None
-    weekdays=["mán","þri","mið","fim","fös","lau","sun"]
+class StatusBar(Frame):  # pylint: disable=too-many-ancestors
+    """
+        A status bar that displays the status of the device.
+        Date, Time, Internet connectivity, OBD communication
+    """
+    
+    date_label = None
+    time_label = None
+    wifi_symbol = None
+    img_wifi = None
+    img_no_wifi = None
+    weekdays = None
+
+    # Private methods
     def __init__(self, *args, **kwargs):
         Frame.__init__(self, *args, **kwargs)
-        self.initialize()
-        self.initializeWidgets()
-        self.placeWidgets()
+        self.__initialize()
+        self.__initialize_widgets()
+        self.__place_widgets()
 
-    def initialize(self):
-        self.statusFont = tkinter.font.Font(family="FreeMono", size=12, weight="bold")
-        self.imgNoWifi = PhotoImage(file="img/white-no-wifi.png")
-        self.imgWifi = PhotoImage(file="img/white-wifi.png")
+    def __initialize(self):
+        self.status_bar_font = font.Font(family="FreeMono", size=14, weight="bold")
+        self.img_no_wifi = PhotoImage(file=r"img/white-no-wifi.png")
+        self.img_wifi = PhotoImage(file=r"img/white-wifi.png")
+        self.weekdays = ["mán", "þri", "mið", "fim", "fös", "lau", "sun"]
 
-    def initializeWidgets(self):
-        self.dateText = Label(self, text="---, --.--.----", background="black", fg="white", font=self.statusFont)
-        self.timeText = Label(self, text="--:--:--", background="black", fg="white", font=self.statusFont)
-        self.wifiSymbol = Label(self, image=self.imgNoWifi, background="black", fg="white")
+    def __initialize_widgets(self):
+        self.date_label = Label(self,
+                                text="---, --.--.----",
+                                background="black",
+                                fg="white",
+                                font=self.status_bar_font)
 
-    def placeWidgets(self):
-        self.dateText.pack(side=LEFT, padx=(3,0))
-        self.timeText.pack(side=RIGHT, padx=(0,3))
-        self.wifiSymbol.pack(side=RIGHT, padx=(0,3))
+        self.time_label = Label(self,
+                                text="--:--:--",
+                                background="black",
+                                fg="white",
+                                font=self.status_bar_font)
 
-    def setDate(self, date):
-        self.weekday = self.weekdays[date.weekday()]
-        self.dateText.config(text=date.strftime("{0}, %d.%m.%Y".format(self.weekday)))
+        self.wifiSymbol = Label(self,
+                                image=self.img_no_wifi,
+                                background="black",
+                                fg="white")
 
-    def setTime(self, date):
-        self.timeText.config(text=date.strftime("%H:%M:%S"))
+    def __place_widgets(self):
+        self.date_label.pack(side=LEFT, padx=(3, 0))
+        self.time_label.pack(side=RIGHT, padx=(0, 3))
+        self.wifiSymbol.pack(side=RIGHT, padx=(0, 3))
 
-    def updateWifiSymbol(self, hasInternet):
+    # Public methods
+    def set_date(self, date):
+        """Sets the date in the status bar according to a pre-determined format."""
+        weekday = self.weekdays[date.weekday()]
+        self.date_label.config(text=date.strftime("{0}, %d.%m.%Y".format(weekday)))
+
+    def set_time(self, date):
+        """Sets the time in the status bar according to a pre-determined format."""
+        self.time_label.config(text=date.strftime("%H:%M:%S"))
+
+    def update_wifi_symbol(self, hasInternet):
+        """Updates the Wi-Fi symbol in the status bar."""
         if hasInternet:
-            self.wifiSymbol.config(image=self.imgWifi)
+            self.wifiSymbol.config(image=self.img_wifi)
         else:
-            self.wifiSymbol.config(image=self.imgNoWifi)
+            self.wifiSymbol.config(image=self.img_no_wifi)

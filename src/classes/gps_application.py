@@ -2,7 +2,6 @@ import threading
 import serial
 import constants
 import os
-import obd
 import csv
 
 from os import listdir
@@ -22,15 +21,18 @@ class GpsApplication:
     hasInternet = False
     oldData = {}
     logFile = None
+    hasGPSConnection = False
+    hasOBDConnection = False
     def __init__(self):
-        self.serial = serial.Serial(port="/dev/ttyAMA0", baudrate=38400)
+        self.initializeGpsConnection()
+        self.initializeObdConnection()
+        
         self.ui = GPS_UI(self)
         self.config = UBX_Configurator(self.serial)
-        self.parser = UBX_Serial_Parser(self.serial, self)
-        self.obd_comm = OBD_Communicator(self)
-        self.configureUBX()
+        
+        self.tick()
         #self.checkForInternet()
-        #self.tick()
+        
         time = datetime.now()
         filename = time.strftime("%Y-%m-%d %H%M%S.csv")
         filepath = os.path.join(constants.LOG_DIRECTORY, filename)
@@ -40,23 +42,50 @@ class GpsApplication:
 
         constants.OBDTypes.getAllTypes()
 
+    def initializeGpsConnection(self):
+        #print("Initializing GPS serial...")
+        self.serial = self.getSerial("/dev/ttyAMA0", 38400)
+        if self.serial is not None:
+            self.parser = UBX_Serial_Parser(self.serial, self)
+            self.parser.start()
+            self.hasGPSConnection = True
+        else:
+            print("GPS port not available")
+
+    def initializeObdConnection(self):
+        #print("Initializing OBD serial...")
+        obdSerial = self.getSerial("/dev/ttyUSB0", 9600)
+        if obdSerial is None:
+            pass#print("OBD port not available")
+        else:
+            obdSerial.close()
+            self.obd_comm = OBD_Communicator(self)
+            self.obd_comm.start()
+            self.hasOBDConnection = True
+
+
     ### INITIALIZATION
     '''
         Starts the UI and parser threads
     '''
     def start(self):
         self.ui.start()
-        self.parser.start()
-        self.obd_comm.start()
+        if self.hasGPSConnection:
+            self.configureUBX()
+
+    def getSerial(self, port, baud):
+        try:
+           return serial.Serial(port=port, baudrate=baud)
+        except:
+           return None
 
     '''
         Sends commands to the u-blox chip to initialize it.
     '''
     def configureUBX(self):
-        pass
         #self.config.forceColdStart()
-        #self.config.setMessageRate(1, 7, 1)
-        #self.config.setRateSettings(100, 1, 1)
+        self.config.setMessageRate(1, 7, 1)
+        self.config.setRateSettings(100, 1, 1)
 
     '''
         Checks if we have an IP address.
@@ -75,7 +104,12 @@ class GpsApplication:
         Even if the GPS or OBD-II do not work.
     '''
     def tick(self):
-        self.checkForInternet()
+        #self.checkForInternet()
+        if not self.hasGPSConnection:
+            self.initializeGpsConnection()
+        if not self.hasOBDConnection:
+            self.initializeObdConnection()
+        
         threading.Timer(1, self.tick).start()
 
     def uploadLogFiles(self):

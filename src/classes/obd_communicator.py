@@ -1,8 +1,6 @@
 import threading
-import obd
 import time
 import constants
-from obd import OBDStatus
 from classes.gps_logger import Observable
 
 class OBD_Communicator(threading.Thread, Observable):
@@ -20,25 +18,32 @@ class OBD_Communicator(threading.Thread, Observable):
 		#obd.logger.setLevel(obd.logging.DEBUG)
 
 	def createConnection(self):
-		self.connection = obd.OBD("/dev/ttyUSB0", protocol="7", baudrate=9600)
+		try:
+			self.connection = self.obd.OBD("/dev/ttyUSB0", protocol="7", baudrate=9600)
+		except:
+			hasConnection = False
 
 	def establishConnection(self):
 		if self.connection == None:
 			self.createConnection()
 		print(self.connection.status())
-		if not self.connection.status() == OBDStatus.CAR_CONNECTED:
+		if not self.connection.status() == self.obd.OBDStatus.CAR_CONNECTED:
 			threading.Timer(1, self.establishConnection).start()
 			self.createConnection()
 
 	def run(self):
+		self.obd = __import__('obd')
 		self.establishConnection()
-		while not self.connection.status() == OBDStatus.CAR_CONNECTED:
+		while not self.connection.status() == self.obd.OBDStatus.CAR_CONNECTED:
 			pass
 		
-		while self.connection.status() == OBDStatus.CAR_CONNECTED:
+		while self.connection.status() == self.obd.OBDStatus.CAR_CONNECTED:
 			
 			if self.coolantCount == 10 or self.refreshAll:
-				response = self.connection.query(obd.commands.COOLANT_TEMP, force=True)
+				try:
+					response = self.connection.query(self.obd.commands.COOLANT_TEMP, force=True)
+				except:
+					hasConnection = False
 				if response.value is not None:
 					self.hasConnection = True
 					self.app.update_metric("COOLANT_TEMP", response.value.magnitude)
@@ -47,7 +52,11 @@ class OBD_Communicator(threading.Thread, Observable):
 				self.coolantCount = 0
 			self.coolantCount = self.coolantCount + 1
 			
-			response = self.connection.query(obd.commands.ENGINE_LOAD, force=True)
+			try:
+				response = self.connection.query(self.obd.commands.ENGINE_LOAD, force=True)
+			except:
+				hasConnection = False
+
 			if response.value is not None:
 				self.hasConnection = True
 				self.app.update_metric("ENGINE_LOAD", response.value.magnitude)
@@ -55,7 +64,10 @@ class OBD_Communicator(threading.Thread, Observable):
 				self.refreshAll = True
 
 			if self.ambientCount == 100 or self.refreshAll:
-				response = self.connection.query(obd.commands.AMBIANT_AIR_TEMP, force=True)
+				try:
+					response = self.connection.query(self.obd.commands.AMBIANT_AIR_TEMP, force=True)
+				except:
+					hasConnection = False
 				if response.value is not None:
 					self.hasConnection = True
 					self.app.update_metric("AMBIANT_AIR_TEMP", response.value.magnitude)
@@ -64,7 +76,10 @@ class OBD_Communicator(threading.Thread, Observable):
 				self.ambientCount = 0
 			self.ambientCount = self.ambientCount + 1
 
-			response = self.connection.query(obd.commands.RPM, force=True)
+			try:
+				response = self.connection.query(self.obd.commands.RPM, force=True)
+			except:
+				hasConnection = False
 			if response.value is not None:
 				self.hasConnection = True
 				self.app.update_metric("RPM", response.value.magnitude)
@@ -72,7 +87,10 @@ class OBD_Communicator(threading.Thread, Observable):
 				self.refreshAll = True
 
 
-			response = self.connection.query(obd.commands.THROTTLE_POS, force=True)
+			try:
+				response = self.connection.query(self.obd.commands.THROTTLE_POS, force=True)
+			except:
+				hasConnection = False
 			if response.value is not None:
 				self.hasConnection = True
 				self.app.update_metric("THROTTLE_POS", response.value.magnitude)

@@ -18,14 +18,29 @@ class GPS_UI (threading.Thread):
     distanceGauge = None
     engineGauge = None
     oldPvt = None
+    oldOldPvt = None
     distance = 0.0
     startDate = None
     engineRunning = False
+
     def __init__(self, app):
         threading.Thread.__init__(self)
         self.app = app
-    
+
+    def get_rounded_speed(self, new_speed):
+        """
+        get_rounded_speed
+        """
+        if self.oldPvt is None:
+            return new_speed
+        
+        return (new_speed+self.oldPvt.gSpeed)/2.0
+
+
     def updatePVT(self, pvt):
+        """
+        updatePVT
+        """
         if self.statusBar is None:
             return
         
@@ -33,6 +48,11 @@ class GPS_UI (threading.Thread):
             self.satelliteGauge is None or
             self.altitudeGauge is None):
             return
+        if pvt.hAcc > 1000:
+            self.satelliteGauge.updateValues(value=pvt.numSv, subvalue="NO FIX")
+        else:
+            self.satelliteGauge.updateValues(value=pvt.numSv, subvalue=str(round(pvt.hAcc, 2)) + ' m', subvalue2=str(round(pvt.pDop, 2)))
+
         if not pvt.flags.gnssFixOK:
             return
 
@@ -40,12 +60,13 @@ class GPS_UI (threading.Thread):
             self.startDate = pvt.getDate()
             self.oldPvt = pvt
             return
-        roundedSpeed = (pvt.gSpeed+self.oldPvt.gSpeed)/2.0
+        roundedSpeed = self.get_rounded_speed(pvt.gSpeed)
         if pvt.fixType >= 1:
-            if roundedSpeed > 0.5:
-                self.distance += vincenty((self.oldPvt.lat, self.oldPvt.lon), (pvt.lat, pvt.lon)).meters
+            if True:
+                traveledDistance = vincenty((self.oldPvt.lat, self.oldPvt.lon), (pvt.lat, pvt.lon)).meters
+                self.distance += traveledDistance
                 self.setSpeed(roundedSpeed)
-                accel = self.calculateAcceleration(self.oldPvt, pvt)
+                accel = self.calculateAcceleration(self.oldOldPvt, self.oldPvt, pvt)
                 self.setAcceleration(accel)
             else:
                 self.setSpeed(0.0)
@@ -54,30 +75,33 @@ class GPS_UI (threading.Thread):
             avgSpeed = self.calculateAverageSpeed(pvt)
             self.setAverageSpeed(avgSpeed)
 
-            self.satelliteGauge.updateValues(value=pvt.numSv, subvalue=str(round(pvt.hAcc, 2)) + ' m')
+            
             self.altitudeGauge.updateValues(value=round(pvt.hMSL, 1))
             onSeconds = (pvt.getDate()-self.startDate).total_seconds()
             hours, remainder = divmod(onSeconds, 3600)
             minutes, seconds = divmod(remainder, 60)
-            self.distanceGauge.updateValues(subvalue='%02d:%02d:%02d' % (hours, minutes, seconds))
             if onSeconds > 3600:
                 self.distanceGauge.updateValues(subvalue='%02d:%02d:%02d' % (hours, minutes, seconds))
             else:
                 self.distanceGauge.updateValues(subvalue='%02d:%02d' % (minutes, seconds))
-            #self.satelliteGauge.updateValues(subvalue=round(pvt.headMot/100000, 1))
 
         self.setDate(pvt.valid, pvt.getDate())
 
         self.calculateAverageSpeed(pvt)
+        self.oldOldPvt = self.oldPvt
         self.oldPvt = pvt
-        self.distanceGauge.updateValues(value=round(self.distance/1000,1))
+        
+        if self.distance < 1000:
+            self.distanceGauge.updateValues(value=str(int(self.distance)) + " m")
+        else:
+            self.distanceGauge.updateValues(value=round(self.distance/1000.0,1))
 
     def setDate(self, valid, date):
         if valid.validDate:
-            self.statusBar.setDate(date)
+            self.statusBar.set_date(date)
 
         if valid.validTime:
-            self.statusBar.setTime(date)
+            self.statusBar.set_time(date)
 
     def setSpeed(self, speed):
         self.speedGauge.updateValues(value=round(speed,1))
@@ -111,17 +135,17 @@ class GPS_UI (threading.Thread):
         if rpm == 0.0:
             return "N"
         
-        ratio = (self.oldPvt.gSpeed/rpm)*100.0
+        ratio = (speed/rpm)*100.0
 
-        if (0.65 < ratio and ratio < 1.0) and self.oldPvt.gSpeed > 5:
+        if (0.65 < ratio and ratio < 1.0) and speed > 5:
             return "1"
-        elif (1.1 < ratio and ratio < 1.6) and self.oldPvt.gSpeed > 9:
+        elif (1.1 < ratio and ratio < 1.6) and speed > 9:
             return "2"
-        elif (1.75 < ratio and ratio < 2.2) and self.oldPvt.gSpeed > 13:
+        elif (1.75 < ratio and ratio < 2.2) and speed > 13:
             return "3"
-        elif (2.3 < ratio and ratio < 2.8) and self.oldPvt.gSpeed > 19:
+        elif (2.3 < ratio and ratio < 2.8) and speed > 19:
             return "4"
-        elif (3.2 < ratio and ratio < 3.6) and self.oldPvt.gSpeed > 25:
+        elif (3.2 < ratio and ratio < 3.6) and speed > 25:
             return "5"
         else:
             return "N"
@@ -168,12 +192,11 @@ class GPS_UI (threading.Thread):
                         self.distanceGauge.updateValues(subvalue2='%02d:%02d:%02d' % (hours, minutes, seconds))
                     else:
                         self.distanceGauge.updateValues(subvalue2='%02d:%02d' % (minutes, seconds))
-
-
         else:
             self.consumptionGauge.updateValues(value="-")
             self.engineGauge.updateValues(subvalue2="----")
-            self.distanceGauge.updateValues(subvalue2="00:00")
+            if self.engineRunSeconds == 0.0:
+                self.distanceGauge.updateValues(subvalue2="00:00")
 
     def setThrottlePos(self, throttle):
         if self.consumptionGauge is None:
@@ -211,17 +234,25 @@ class GPS_UI (threading.Thread):
         elif metric == "THROTTLE_POS":
             self.setThrottlePos(value)
 
-    def calculateAcceleration(self, oldPvt, pvt):
-        newTime = pvt.getDate()
-        oldTime = oldPvt.getDate()
+    def calculateAcceleration(self, oldOldPvt, oldPvt, pvt):
+        if oldOldPvt is None or oldPvt is None or pvt is None:
+            return 0.0
+        
+        time1 = oldOldPvt.getDate()
+        time2 = oldPvt.getDate()
+        time3 = pvt.getDate()
 
-        newSpeed = pvt.gSpeed
-        oldSpeed = oldPvt.gSpeed
+        timDiff1 = (time3-time2).total_seconds()
+        timDiff2 = (time2-time1).total_seconds()
 
-        spdDiff = newSpeed-oldSpeed
-        timDiff = (newTime-oldTime).microseconds
-        #print(newSpeed, oldSpeed, spdDiff, timDiff, spdDiff*(timDiff/1000000))
-        return spdDiff*(timDiff/1000000)
+        disDiff1 = vincenty((oldOldPvt.lat, oldOldPvt.lon), (oldPvt.lat, oldPvt.lon)).meters
+        disDiff2 = vincenty((oldPvt.lat, oldPvt.lon), (pvt.lat, pvt.lon)).meters
+        spdDiff1 = disDiff1/timDiff1 
+        spdDiff2 = disDiff2/timDiff2
+        if (time1-time3).total_seconds() != 0.0:
+            return ((spdDiff2-spdDiff1)/(time3-time1).total_seconds())*3.6
+        else:
+            return 0.0
 
     def calculateAverageSpeed(self, pvt):
         duration = (pvt.getDate()-self.startDate).seconds/60/60
@@ -260,7 +291,7 @@ class GPS_UI (threading.Thread):
         # self.btnRate100 = Button(self.root,
         #                          text="100 ms Update Rate",
         #                          command = self.didClickUpdateRate100)
-        self.statusBar = StatusBar(self.root, height=20, background='black')
+        self.statusBar = StatusBar(self.root, background='black')
         self.statusBar.grid(row=0,column=0, columnspan=3, sticky=W+E)
         self.statusBar.bind('<Button-1>', self.didClickSettings)
 
@@ -269,7 +300,6 @@ class GPS_UI (threading.Thread):
 
         self.root.rowconfigure(1, weight=1)
         self.root.rowconfigure(2, weight=1)
-
 
         self.initializeGauges()
         self.setGaugeTitles()
@@ -282,7 +312,7 @@ class GPS_UI (threading.Thread):
 
         self.altitudeGauge = MainGauge(self.root, background='white')
         self.distanceGauge = MainGauge(self.root, background='white')
-        self.engineGauge = MainGauge(self.root, background='white')        
+        self.engineGauge = MainGauge(self.root, background='white')
 
 
     def setGaugeTitles(self):
@@ -291,7 +321,7 @@ class GPS_UI (threading.Thread):
         self.consumptionGauge.updateValues(title="GÍR, ÚTIHITI, GJÖF")
 
         self.altitudeGauge.updateValues(title="HÆÐ Y. S.")
-        self.distanceGauge.updateValues(title="FERÐ")
+        self.distanceGauge.updateValues(title="FERÐ", subvalue2="--:--")
         self.engineGauge.updateValues(title="VÉL")
 
     def placeGauges(self):

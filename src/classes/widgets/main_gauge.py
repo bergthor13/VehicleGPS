@@ -16,9 +16,9 @@ class MainGauge(Frame):
         #self.gaugeLayout = gaugeLayout
         
     def initialize(self):
-        self.titleFont    = tkinter.font.Font(family="Helvetica", size=7, weight="normal")
+        self.titleFont    = tkinter.font.Font(family="Helvetica", size=8, weight="normal")
         self.valueFont    = tkinter.font.Font(family="FreeMono", size=25, weight="bold")
-        self.subvalueFont = tkinter.font.Font(family="FreeMono", size=15, weight="bold")
+        self.subvalueFont = tkinter.font.Font(family="FreeMono", size=16, weight="bold")
 
     def initializeWidgets(self):
         self.titleText     = Label(self, text="---", background="white", fg="black",  font=self.titleFont)
