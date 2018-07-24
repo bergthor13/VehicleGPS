@@ -49,9 +49,9 @@ class GPS_UI (threading.Thread):
             self.altitudeGauge is None):
             return
         if pvt.hAcc > 1000:
-            self.satelliteGauge.updateValues(value=pvt.numSv, subvalue="NO FIX")
+            self.satelliteGauge.update_values(value=pvt.numSv, subvalue="NO FIX")
         else:
-            self.satelliteGauge.updateValues(value=pvt.numSv, subvalue=str(round(pvt.hAcc, 2)) + ' m', subvalue2=str(round(pvt.pDop, 2)))
+            self.satelliteGauge.update_values(value=pvt.numSv, subvalue=str(round(pvt.hAcc, 2)) + ' m', subvalue2=str(round(pvt.pDop, 2)))
 
         if not pvt.flags.gnssFixOK:
             return
@@ -76,14 +76,14 @@ class GPS_UI (threading.Thread):
             self.setAverageSpeed(avgSpeed)
 
             
-            self.altitudeGauge.updateValues(value=round(pvt.hMSL, 1))
+            self.altitudeGauge.update_values(value=round(pvt.hMSL, 1))
             onSeconds = (pvt.getDate()-self.startDate).total_seconds()
             hours, remainder = divmod(onSeconds, 3600)
             minutes, seconds = divmod(remainder, 60)
             if onSeconds > 3600:
-                self.distanceGauge.updateValues(subvalue='%02d:%02d:%02d' % (hours, minutes, seconds))
+                self.distanceGauge.update_values(subvalue='%02d:%02d:%02d' % (hours, minutes, seconds))
             else:
-                self.distanceGauge.updateValues(subvalue='%02d:%02d' % (minutes, seconds))
+                self.distanceGauge.update_values(subvalue='%02d:%02d' % (minutes, seconds))
 
         self.setDate(pvt.valid, pvt.getDate())
 
@@ -92,9 +92,9 @@ class GPS_UI (threading.Thread):
         self.oldPvt = pvt
         
         if self.distance < 1000:
-            self.distanceGauge.updateValues(value=str(int(self.distance)) + " m")
+            self.distanceGauge.update_values(value=str(int(self.distance)) + " m")
         else:
-            self.distanceGauge.updateValues(value=round(self.distance/1000.0,1))
+            self.distanceGauge.update_values(value=round(self.distance/1000.0,1))
 
     def setDate(self, valid, date):
         if valid.validDate:
@@ -104,22 +104,22 @@ class GPS_UI (threading.Thread):
             self.statusBar.set_time(date)
 
     def setSpeed(self, speed):
-        self.speedGauge.updateValues(value=round(speed,1))
+        self.speedGauge.update_values(value=round(speed,1))
 
     def setAcceleration(self, acceleration):
-        self.speedGauge.updateValues(subvalue=round(acceleration,1))
+        self.speedGauge.update_values(subvalue=round(acceleration,1))
 
     def setAverageSpeed(self, avgSpeed):
-        self.speedGauge.updateValues(subvalue2=round(avgSpeed,1))
+        self.speedGauge.update_values(subvalue2=round(avgSpeed,1))
     
     def setEngineTemp(self, temp):
         if self.engineGauge is None:
             return
 
         if temp is not None:
-            self.engineGauge.updateValues(subvalue=str(round(temp))+ "°C")
+            self.engineGauge.update_values(subvalue=str(round(temp))+ "°C")
         else:
-            self.engineGauge.updateValues(subvalue="--°C")
+            self.engineGauge.update_values(subvalue="--°C")
 
 
     def setEngineLoad(self, load):
@@ -127,9 +127,9 @@ class GPS_UI (threading.Thread):
             return
 
         if load is not None:
-            self.engineGauge.updateValues(value=str(round(load)) + "%")
+            self.engineGauge.update_values(value=str(round(load)) + "%")
         else:
-            self.engineGauge.updateValues(value="--%")
+            self.engineGauge.update_values(value="--%")
 
     def getCurrentGear(self, speed, rpm):
         if rpm == 0.0:
@@ -162,11 +162,11 @@ class GPS_UI (threading.Thread):
             return
         
         if rpm is not None:
-            self.engineGauge.updateValues(subvalue2=str(round(rpm)))
+            self.engineGauge.update_values(subvalue2=str(round(rpm)))
             
             if self.oldPvt is not None:
                 currentGear = self.getCurrentGear(self.oldPvt.gSpeed, rpm)
-                self.consumptionGauge.updateValues(value=currentGear)
+                self.consumptionGauge.update_values(value=currentGear)
             
             # Engine has started.
             if self.engineRunning == False and rpm != 0.0:
@@ -189,37 +189,37 @@ class GPS_UI (threading.Thread):
                     hours, remainder = divmod(totalSeconds, 3600)
                     minutes, seconds = divmod(remainder, 60)
                     if totalSeconds > 3600:
-                        self.distanceGauge.updateValues(subvalue2='%02d:%02d:%02d' % (hours, minutes, seconds))
+                        self.distanceGauge.update_values(subvalue2='%02d:%02d:%02d' % (hours, minutes, seconds))
                     else:
-                        self.distanceGauge.updateValues(subvalue2='%02d:%02d' % (minutes, seconds))
+                        self.distanceGauge.update_values(subvalue2='%02d:%02d' % (minutes, seconds))
         else:
-            self.consumptionGauge.updateValues(value="-")
-            self.engineGauge.updateValues(subvalue2="----")
+            self.consumptionGauge.update_values(value="-")
+            self.engineGauge.update_values(subvalue2="----")
             if self.engineRunSeconds == 0.0:
-                self.distanceGauge.updateValues(subvalue2="00:00")
+                self.distanceGauge.update_values(subvalue2="00:00")
 
     def setThrottlePos(self, throttle):
         if self.consumptionGauge is None:
             return
 
         if throttle is not None:
-            self.consumptionGauge.updateValues(subvalue2=str(round(throttle)) + "%")
+            self.consumptionGauge.update_values(subvalue2=str(round(throttle)) + "%")
         else:
-            self.consumptionGauge.updateValues(subvalue2="--%")
+            self.consumptionGauge.update_values(subvalue2="--%")
 
 
     def setVoltage(self, voltage):
         if self.engineGauge is None:
             return
-        self.engineGauge.updateValues(value=voltage)
+        self.engineGauge.update_values(value=voltage)
 
     def setAmbientTemp(self, temp):
         if self.consumptionGauge is None:
             return
         if temp is not None:
-            self.consumptionGauge.updateValues(subvalue=str(round(temp))+ "°C")
+            self.consumptionGauge.update_values(subvalue=str(round(temp))+ "°C")
         else:
-            self.consumptionGauge.updateValues(subvalue="--°C")
+            self.consumptionGauge.update_values(subvalue="--°C")
 
 
     def setMetric(self, metric, value):
@@ -316,13 +316,13 @@ class GPS_UI (threading.Thread):
 
 
     def setGaugeTitles(self):
-        self.speedGauge.updateValues(title="HRAÐI (km/klst)")
-        self.satelliteGauge.updateValues(title="MERKI")
-        self.consumptionGauge.updateValues(title="GÍR, ÚTIHITI, GJÖF")
+        self.speedGauge.update_values(title="HRAÐI (km/klst)")
+        self.satelliteGauge.update_values(title="MERKI")
+        self.consumptionGauge.update_values(title="GÍR, ÚTIHITI, GJÖF")
 
-        self.altitudeGauge.updateValues(title="HÆÐ Y. S.")
-        self.distanceGauge.updateValues(title="FERÐ", subvalue2="--:--")
-        self.engineGauge.updateValues(title="VÉL")
+        self.altitudeGauge.update_values(title="HÆÐ Y. S.")
+        self.distanceGauge.update_values(title="FERÐ", subvalue2="--:--")
+        self.engineGauge.update_values(title="VÉL")
 
     def placeGauges(self):
         self.speedGauge.grid(row=1, column=0, sticky=N+E+W+S, pady=(0,1), padx=(0,1))

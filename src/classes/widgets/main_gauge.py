@@ -1,45 +1,69 @@
-from tkinter import *
-import tkinter.font
+"""File containing a class for the main gauge."""
+from tkinter import font, Label, Frame
 
 class MainGauge(Frame):
-    titleText = None
-    titleText2 = None
-    gaugeValue = None
-    gaugeSubvalue = None
-    gaugeSubvalue2 = None
-    gaugeLayout = 0
+    """
+        A gauge that displays any kind of information.
+        It contains a title and three data fields.
+        One large and two smaller ones.
+    """
+
+    title_label = None
+    main_gauge_label = None
+    sub_gauge1_label = None
+    sub_gauge2_label = None
+
+    # Private methods
     def __init__(self, *args, **kwargs):
         Frame.__init__(self, *args, **kwargs)
-        self.initialize()
-        self.initializeWidgets()
-        self.placeWidgets()
-        #self.gaugeLayout = gaugeLayout
-        
-    def initialize(self):
-        self.titleFont    = tkinter.font.Font(family="Helvetica", size=8, weight="normal")
-        self.valueFont    = tkinter.font.Font(family="FreeMono", size=25, weight="bold")
-        self.subvalueFont = tkinter.font.Font(family="FreeMono", size=16, weight="bold")
+        self.__initialize_fonts()
+        self.__initialize_widgets()
+        self.__place_widgets()
 
-    def initializeWidgets(self):
-        self.titleText     = Label(self, text="---", background="white", fg="black",  font=self.titleFont)
-        self.titleText2     = Label(self, text="---", background="white", fg="black",  font=self.titleFont)
-        self.gaugeValue    = Label(self, text="--.-", background="white", fg="black", font=self.valueFont)
-        self.gaugeSubvalue = Label(self, text="--.-", background="white", fg="black", font=self.subvalueFont)
-        self.gaugeSubvalue2 = Label(self, text="--.-", background="white", fg="black", font=self.subvalueFont)
+    def __initialize_fonts(self):
+        self.title_font = font.Font(family="Helvetica", size=8, weight="normal")
+        self.value_font = font.Font(family="FreeMono", size=25, weight="bold")
+        self.subvalue_font = font.Font(family="FreeMono", size=16, weight="bold")
 
-    def placeWidgets(self):
-        if self.gaugeLayout == 0:
-            self.titleText.pack(pady=(5,0))
-            self.gaugeValue.pack(pady=(0,0))
-            self.gaugeSubvalue.pack(pady=(0,0))
-            self.gaugeSubvalue2.pack(pady=(0,0))
+    def __initialize_widgets(self):
+        self.title_label = Label(self,
+                                 text="---",
+                                 background="white",
+                                 fg="black",
+                                 font=self.title_font)
 
-    def updateValues(self, title = None, value = None, subvalue = None, subvalue2=None):
+        self.main_gauge_label = Label(self,
+                                      text="--.-",
+                                      background="white",
+                                      fg="black",
+                                      font=self.value_font)
+
+        self.sub_gauge1_label = Label(self,
+                                      text="--.-",
+                                      background="white",
+                                      fg="black",
+                                      font=self.subvalue_font)
+
+        self.sub_gauge2_label = Label(self,
+                                      text="--.-",
+                                      background="white",
+                                      fg="black",
+                                      font=self.subvalue_font)
+
+    def __place_widgets(self):
+        self.title_label.pack(pady=(5, 0))
+        self.main_gauge_label.pack(pady=(0, 0))
+        self.sub_gauge1_label.pack(pady=(0, 0))
+        self.sub_gauge2_label.pack(pady=(0, 0))
+
+    # Public methods
+    def update_values(self, title=None, value=None, subvalue=None, subvalue2=None):
+        """Updates the gauges."""
         if title is not None:
-            self.titleText.config(text=title)
+            self.title_label.config(text=title)
         if value is not None:
-            self.gaugeValue.config(text=str(value))
+            self.main_gauge_label.config(text=str(value))
         if subvalue is not None:
-            self.gaugeSubvalue.config(text=str(subvalue))
+            self.sub_gauge1_label.config(text=str(subvalue))
         if subvalue2 is not None:
-            self.gaugeSubvalue2.config(text=str(subvalue2))
+            self.sub_gauge2_label.config(text=str(subvalue2))

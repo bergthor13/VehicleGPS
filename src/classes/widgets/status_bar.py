@@ -1,6 +1,5 @@
 """File containing a class for the status bar."""
-from tkinter import Label, PhotoImage, Frame, LEFT, RIGHT
-from tkinter import font
+from tkinter import font, Label, PhotoImage, Frame, LEFT, RIGHT
 
 class StatusBar(Frame):  # pylint: disable=too-many-ancestors
     """
