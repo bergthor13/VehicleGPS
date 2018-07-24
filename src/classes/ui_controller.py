@@ -64,7 +64,7 @@ class UI_Controller (threading.Thread):
             return
         roundedSpeed = self.get_rounded_speed(pvt.gSpeed)
         if pvt.fixType >= 1:
-            if True:
+            if roundedSpeed > 0.5:
                 traveledDistance = vincenty((self.oldPvt.lat, self.oldPvt.lon), (pvt.lat, pvt.lon)).meters
                 self.distance += traveledDistance
                 self.setSpeed(roundedSpeed)
