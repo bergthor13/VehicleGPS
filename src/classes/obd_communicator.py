@@ -1,9 +1,8 @@
 import threading
 import time
 import constants
-from classes.gps_logger import Observable
 
-class OBD_Communicator(threading.Thread, Observable):
+class OBD_Communicator(threading.Thread):
 	
 	connection = None
 	coolantCount = 10

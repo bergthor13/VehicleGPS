@@ -14,6 +14,9 @@ from classes.ubx_serial_parser import UBX_Serial_Parser
 from classes.obd_communicator import OBD_Communicator
 from classes.ui_controller import UI_Controller
 from classes.data.pvt import *
+
+import RPi.GPIO as GPIO
+
 '''
 GPSApp
 '''
@@ -25,6 +28,17 @@ class GpsApplication:
     hasOBDConnection = False
     
     def __init__(self):
+        GPIO.setmode(GPIO.BCM)
+
+        GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.add_event_detect(17, GPIO.FALLING, callback=self.handle1, bouncetime=500)
+        GPIO.add_event_detect(22, GPIO.FALLING, callback=self.handle2, bouncetime=500)
+        GPIO.add_event_detect(23, GPIO.FALLING, callback=self.handle3, bouncetime=500)
+        GPIO.add_event_detect(27, GPIO.FALLING, callback=self.handle4, bouncetime=500)
+
         self.initializeGpsConnection()
         self.initializeObdConnection()
         
@@ -42,6 +56,18 @@ class GpsApplication:
             self.oldData[obdType] = None
 
         constants.OBDTypes.getAllTypes()
+
+    def handle1(self, channel):
+        self.ui.display_settings()
+    
+    def handle2(self, channel):
+        print("Clicked2!")
+
+    def handle3(self, channel):
+        print("Clicked3!")
+
+    def handle4(self, channel):
+        print("Clicked4!")
 
     def initializeGpsConnection(self):
         #print("Initializing GPS serial...")
