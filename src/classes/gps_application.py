@@ -13,6 +13,7 @@ from classes.ubx_configurator import UBX_Configurator
 from classes.ubx_serial_parser import UBX_Serial_Parser
 from classes.obd_communicator import OBD_Communicator
 from classes.ui_controller import UI_Controller
+from classes.pub_sub import Subscriber
 from classes.data.pvt import *
 
 import RPi.GPIO as GPIO
@@ -20,12 +21,14 @@ import RPi.GPIO as GPIO
 '''
 GPSApp
 '''
-class GpsApplication:
+class GpsApplication(Subscriber):
     hasInternet = False
-    oldData = {}
     logFile = None
     hasGPSConnection = False
     hasOBDConnection = False
+
+    maxHistory = 5
+    history = []
     
     def __init__(self):
         GPIO.setmode(GPIO.BCM)
@@ -74,10 +77,13 @@ class GpsApplication:
         self.serial = self.getSerial("/dev/ttyAMA0", 38400)
         if self.serial is not None:
             self.parser = UBX_Serial_Parser(self.serial, self)
+            self.parser.register("UBX-NAV-PVT", self)
             self.parser.start()
             self.hasGPSConnection = True
         else:
             print("GPS port not available")
+    def update(self, pvt):
+        
 
     def initializeObdConnection(self):
         #print("Initializing OBD serial...")

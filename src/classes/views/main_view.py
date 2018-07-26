@@ -4,15 +4,17 @@ from classes.widgets.speed_gauge import SpeedGauge
 from classes.widgets.main_gauge import MainGauge
 
 class MainView(Frame):
-    def __init__(self, *args, **kwargs):
+
+    def __init__(self, app, *args, **kwargs):
         Frame.__init__(self, *args, **kwargs)
+        self.app = app
         self.initializeGauges()
         self.setGaugeTitles()
         self.placeGauges()
         
     def initializeGauges(self):
         self.speedGauge = SpeedGauge(self, background='white')
-        #self.app.parser.register("UBX-NAV-PVT", self.speedGauge)
+        self.app.parser.register("UBX-NAV-PVT", self.speedGauge)
         self.satelliteGauge = MainGauge(self, background='white')
         self.consumptionGauge = MainGauge(self, background='white')
 

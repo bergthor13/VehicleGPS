@@ -9,9 +9,7 @@ class SpeedGauge(MainGauge, Subscriber):
         It contains a title and three data fields.
         One large and two smaller ones.
     """
-    maxHistory = 5
-    history = []
-    old_speed = None
+
     
     def __init__(self, *args, **kwargs):
         MainGauge.__init__(self, *args, **kwargs)
@@ -20,18 +18,19 @@ class SpeedGauge(MainGauge, Subscriber):
         self.history.insert(0, pvt)
         if len(self.history) > self.maxHistory:
             del self.history[-1]
+
         # Update Speed Gauge
-        round_speed = self.get_rounded_speed(self.old_speed, pvt.gSpeed)
-        self.update_values(value=(round(round_speed,1)))
-        self.old_speed = pvt.gSpeed
-        print([str(i.getDate()) for i in self.history])
+        if len(self.history) > 2:
+            round_speed = self.get_rounded_speed(self.history[0].gSpeed, self.history[1].gSpeed)
+            self.update_values(value=(round(round_speed,1)))
+
         # Update Acceleration Gauge
 
         # Update Average Speed Gauge
         
 
 
-    def get_rounded_speed(self, old_speed, new_speed):
+    def get_rounded_speed(self, new_speed, old_speed):
         """
         get_rounded_speed
         """

@@ -50,7 +50,7 @@ class UI_Controller (threading.Thread):
 
     def initialize_views(self):
         self.status_bar = StatusBar(self.root, background='black')
-        self.main_view = MainView(self.root, background="black")
+        self.main_view = MainView(self.app, self.root, background="black")
         self.settings_view = SettingsView(self.root, background="white")
 
     def pack_views(self):
