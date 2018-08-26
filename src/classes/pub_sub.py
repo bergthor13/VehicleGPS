@@ -1,5 +1,5 @@
 class Subscriber:
-    def update(self, data):
+    def update(self, message, data):
         '''Called when the observed object is
         modified. You call an Observable object's
         notifyObservers method to notify all the
@@ -26,5 +26,5 @@ class Publisher:
     def dispatch(self, event, message):
         subs = self.get_subscribers(event)
         if subs is not None:
-            for subscriber, callback in subs.items():
-                callback(message)
+            for subscriber, callback in list(subs.items()):
+                callback(event, message)

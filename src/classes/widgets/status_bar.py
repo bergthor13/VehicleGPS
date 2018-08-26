@@ -1,7 +1,8 @@
 """File containing a class for the status bar."""
 from tkinter import font, Label, PhotoImage, Frame, LEFT, RIGHT
+from classes.pub_sub import Subscriber
 
-class StatusBar(Frame):  # pylint: disable=too-many-ancestors
+class StatusBar(Frame, Subscriber):  # pylint: disable=too-many-ancestors
     """
         A status bar that displays the status of the device.
         Date, Time, Internet connectivity, OBD communication
@@ -66,3 +67,17 @@ class StatusBar(Frame):  # pylint: disable=too-many-ancestors
             self.wifiSymbol.config(image=self.img_wifi)
         else:
             self.wifiSymbol.config(image=self.img_no_wifi)
+
+    def update(self, message, pvt):
+        # Update Speed Gauge
+
+        if pvt.valid.validDate:
+            self.set_date(pvt.getDate())
+
+        if pvt.valid.validTime:
+            self.set_time(pvt.getDate())
+
+        # Update Acceleration Gauge
+
+        # Update Average Speed Gauge
+        

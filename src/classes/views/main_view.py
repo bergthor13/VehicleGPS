@@ -1,7 +1,12 @@
 """"""
 from tkinter import font, Label, Frame, N, E, W, S
 from classes.widgets.speed_gauge import SpeedGauge
+from classes.widgets.signal_gauge import SignalGauge
+from classes.widgets.trip_gauge import TripGauge
+from classes.widgets.altitude_gauge import AltitudeGauge
 from classes.widgets.main_gauge import MainGauge
+from classes.widgets.engine_gauge import EngineGauge
+from classes.widgets.misc_gauge import MiscGauge
 
 class MainView(Frame):
 
@@ -9,27 +14,41 @@ class MainView(Frame):
         Frame.__init__(self, *args, **kwargs)
         self.app = app
         self.initializeGauges()
+        self.registerGauges()
         self.setGaugeTitles()
         self.placeGauges()
         
     def initializeGauges(self):
-        self.speedGauge = SpeedGauge(self, background='white')
-        self.app.parser.register("UBX-NAV-PVT", self.speedGauge)
-        self.satelliteGauge = MainGauge(self, background='white')
-        self.consumptionGauge = MainGauge(self, background='white')
+        self.speedGauge = SpeedGauge(self.app, self, background='white')
+        self.signalGauge = SignalGauge(self.app, self, background='white')
+        self.miscGauge = MiscGauge(self.app, self, background='white')
 
-        self.altitudeGauge = MainGauge(self, background='white')
-        self.distanceGauge = MainGauge(self, background='white')
-        self.engineGauge = MainGauge(self, background='white')
+        self.altitudeGauge = AltitudeGauge(self.app, self, background='white')
+        self.tripGauge = TripGauge(self.app, self, background='white')
+        self.engineGauge = EngineGauge(self.app, self, background='white')
+
+    def registerGauges(self):
+        self.app.parser.register("UBX-NAV-PVT", self.speedGauge)
+        self.app.parser.register("UBX-NAV-PVT", self.signalGauge)
+        self.app.parser.register("UBX-NAV-PVT", self.tripGauge)
+        self.app.parser.register("UBX-NAV-PVT", self.altitudeGauge)
+        
+        self.app.obd_comm.register("OBD-ENGINE_LOAD", self.engineGauge)
+        self.app.obd_comm.register("OBD-COOLANT_TEMP", self.engineGauge)
+        self.app.obd_comm.register("OBD-RPM", self.engineGauge)
+
+        self.app.obd_comm.register("OBD-RPM", self.miscGauge)
+        self.app.obd_comm.register("OBD-AMBIANT_AIR_TEMP", self.miscGauge)
+        self.app.obd_comm.register("OBD-THROTTLE_POS", self.miscGauge)
 
 
     def setGaugeTitles(self):
         self.speedGauge.update_values(title="HRAÐI (km/klst)")
-        self.satelliteGauge.update_values(title="MERKI")
-        self.consumptionGauge.update_values(title="GÍR, ÚTIHITI, GJÖF")
+        self.signalGauge.update_values(title="MERKI")
+        self.miscGauge.update_values(title="GÍR, ÚTIHITI, GJÖF")
 
         self.altitudeGauge.update_values(title="HÆÐ Y. S.")
-        self.distanceGauge.update_values(title="FERÐ", subvalue2="--:--")
+        self.tripGauge.update_values(title="FERÐ")
         self.engineGauge.update_values(title="VÉL")
 
     def placeGauges(self):
@@ -37,29 +56,9 @@ class MainView(Frame):
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure(2, weight=1)
         self.speedGauge.grid(row=1, column=0, sticky=N+E+W+S, pady=(0,1), padx=(0,1))
-        self.consumptionGauge.grid(row=1, column=1, sticky=N+E+W+S, pady=(0,1), padx=(0,1))
+        self.miscGauge.grid(row=1, column=1, sticky=N+E+W+S, pady=(0,1), padx=(0,1))
         self.engineGauge.grid(row=1, column=2, sticky=N+E+W+S, pady=(0,1))
 
         self.altitudeGauge.grid(row=2, column=0, sticky=N+E+W+S, padx=(0,1))
-        self.distanceGauge.grid(row=2, column=1, sticky=N+E+W+S, padx=(0,1))
-        self.satelliteGauge.grid(row=2, column=2, sticky=N+E+W+S)
-
-def get_current_gear(speed, rpm):
-    """Woo"""
-    if rpm == 0.0:
-        return "N"
-    
-    ratio = (speed/rpm)*100.0
-
-    if (0.65 < ratio and ratio < 1.0) and speed > 5:
-        return "1"
-    elif (1.1 < ratio and ratio < 1.6) and speed > 9:
-        return "2"
-    elif (1.75 < ratio and ratio < 2.2) and speed > 13:
-        return "3"
-    elif (2.3 < ratio and ratio < 2.8) and speed > 19:
-        return "4"
-    elif (3.2 < ratio and ratio < 3.6) and speed > 25:
-        return "5"
-    else:
-        return "N"
+        self.tripGauge.grid(row=2, column=1, sticky=N+E+W+S, padx=(0,1))
+        self.signalGauge.grid(row=2, column=2, sticky=N+E+W+S)

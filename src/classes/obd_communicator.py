@@ -1,8 +1,9 @@
 import threading
 import time
 import constants
+from classes.pub_sub import Publisher
 
-class OBD_Communicator(threading.Thread):
+class OBD_Communicator(threading.Thread, Publisher):
 	
 	connection = None
 	coolantCount = 10
@@ -13,6 +14,8 @@ class OBD_Communicator(threading.Thread):
 
 	def __init__(self, app):
 		threading.Thread.__init__(self)
+		Publisher.__init__(self, ["OBD-COOLANT_TEMP", "OBD-ENGINE_LOAD", "OBD-AMBIANT_AIR_TEMP", "OBD-RPM", "OBD-THROTTLE_POS"])
+
 		self.app = app
 		#obd.logger.setLevel(obd.logging.DEBUG)
 
@@ -45,7 +48,7 @@ class OBD_Communicator(threading.Thread):
 					hasConnection = False
 				if response.value is not None:
 					self.hasConnection = True
-					self.app.update_metric("COOLANT_TEMP", response.value.magnitude)
+					self.dispatch("OBD-COOLANT_TEMP", response.value.magnitude)
 				else:
 					self.refreshAll = True
 				self.coolantCount = 0
@@ -58,7 +61,7 @@ class OBD_Communicator(threading.Thread):
 
 			if response.value is not None:
 				self.hasConnection = True
-				self.app.update_metric("ENGINE_LOAD", response.value.magnitude)
+				self.dispatch("OBD-ENGINE_LOAD", response.value.magnitude)
 			else:
 				self.refreshAll = True
 
@@ -69,7 +72,7 @@ class OBD_Communicator(threading.Thread):
 					hasConnection = False
 				if response.value is not None:
 					self.hasConnection = True
-					self.app.update_metric("AMBIANT_AIR_TEMP", response.value.magnitude)
+					self.dispatch("OBD-AMBIANT_AIR_TEMP", response.value.magnitude)
 				else:
 					self.refreshAll = True
 				self.ambientCount = 0
@@ -81,7 +84,7 @@ class OBD_Communicator(threading.Thread):
 				hasConnection = False
 			if response.value is not None:
 				self.hasConnection = True
-				self.app.update_metric("RPM", response.value.magnitude)
+				self.dispatch("OBD-RPM", response.value.magnitude)
 			else:
 				self.refreshAll = True
 
@@ -92,7 +95,7 @@ class OBD_Communicator(threading.Thread):
 				hasConnection = False
 			if response.value is not None:
 				self.hasConnection = True
-				self.app.update_metric("THROTTLE_POS", response.value.magnitude)
+				self.dispatch("OBD-THROTTLE_POS", response.value.magnitude)
 			else:
 				self.refreshAll = True
 
@@ -125,10 +128,10 @@ class OBD_Communicator(threading.Thread):
 
 			if response.value is None:
 				self.hasConnection = False
-				self.app.update_metric("COOLANT_TEMP", None)
-				self.app.update_metric("ENGINE_LOAD", None)
-				self.app.update_metric("AMBIANT_AIR_TEMP", None)
-				self.app.update_metric("RPM", None)
-				self.app.update_metric("THROTTLE_POS", None)
+				self.dispatch("OBD-COOLANT_TEMP", None)
+				self.dispatch("OBD-ENGINE_LOAD", None)
+				self.dispatch("OBD-AMBIANT_AIR_TEMP", None)
+				self.dispatch("OBD-RPM", None)
+				self.dispatch("OBD-THROTTLE_POS", None)
 				self.connection.close()
 				self.createConnection()

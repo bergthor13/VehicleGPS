@@ -6,10 +6,6 @@ from classes.widgets.main_gauge import MainGauge
 from classes.widgets.speed_gauge import SpeedGauge
 from classes.views.main_view import MainView
 from classes.views.settings_view import SettingsView
-from classes.data.pvt import *
-from datetime import datetime
-from geopy.distance import vincenty
-
 
 class UI_Controller (threading.Thread):
     window_width = 320
@@ -50,6 +46,7 @@ class UI_Controller (threading.Thread):
 
     def initialize_views(self):
         self.status_bar = StatusBar(self.root, background='black')
+        self.app.parser.register("UBX-NAV-PVT", self.status_bar)
         self.main_view = MainView(self.app, self.root, background="black")
         self.settings_view = SettingsView(self.root, background="white")
 
