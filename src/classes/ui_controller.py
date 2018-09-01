@@ -63,7 +63,25 @@ class UI_Controller (threading.Thread):
         self.current_view = self.main_view
 
         self.root.mainloop()
-    
+    is_night = False
+    def change_color(self):
+        if self.is_night:
+            self.main_view.configure(background="black")
+            self.main_view.set_background_color("white")
+            self.main_view.set_text_color("black")
+            self.status_bar.set_background_color("black")
+            self.status_bar.set_text_color("white")
+            self.app.set_display_brightness(100)
+            self.is_night = False
+        else:
+            self.main_view.configure(background="green")
+            self.main_view.set_background_color("black")
+            self.main_view.set_text_color("green")
+            self.status_bar.set_background_color("green")
+            self.status_bar.set_text_color("black")
+            self.app.set_display_brightness(30)
+            self.is_night = True
+
     def display_settings(self):
         if self.current_view is self.settings_view:
             self.settings_view.pack_forget()

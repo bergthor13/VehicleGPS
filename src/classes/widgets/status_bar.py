@@ -80,4 +80,12 @@ class StatusBar(Frame, Subscriber):  # pylint: disable=too-many-ancestors
         # Update Acceleration Gauge
 
         # Update Average Speed Gauge
-        
+    
+    def set_background_color(self, color):
+        self.configure(background=color)
+        self.date_label.configure(background=color)
+        self.time_label.configure(background=color)
+
+    def set_text_color(self, color):
+        self.date_label.configure(fg=color)
+        self.time_label.configure(fg=color)

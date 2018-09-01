@@ -25,14 +25,14 @@ class TripGauge(MainGauge, Subscriber):
             self.update_values(value=str(int(distance*1000)) + " m")
         else:
             self.update_values(value=round(distance,2))
-
-        on_seconds = (pvt.getDate()-self.app.get_start_date()).total_seconds()
-        hours, remainder = divmod(on_seconds, 3600)
-        minutes, seconds = divmod(remainder, 60)
-        if on_seconds > 3600:
-            self.update_values(subvalue='%02d:%02d:%02d' % (hours, minutes, seconds))
-        else:
-            self.update_values(subvalue='%02d:%02d' % (minutes, seconds))
+        if self.app.get_start_date() is not None:
+            on_seconds = (pvt.getDate()-self.app.get_start_date()).total_seconds()
+            hours, remainder = divmod(on_seconds, 3600)
+            minutes, seconds = divmod(remainder, 60)
+            if on_seconds > 3600:
+                self.update_values(subvalue='%02d:%02d:%02d' % (hours, minutes, seconds))
+            else:
+                self.update_values(subvalue='%02d:%02d' % (minutes, seconds))
 
         if self.app.get_engine_start_time() is not None and self.app.get_engine_running() == True:
             print("WOO")

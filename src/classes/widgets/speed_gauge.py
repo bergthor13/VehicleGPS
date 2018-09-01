@@ -15,16 +15,16 @@ class SpeedGauge(MainGauge, Subscriber):
         self.app = app
 
     def update(self, message, pvt):
-        # Update Speed Gauge
         gpsHistory = self.app.get_history(message)
-        if gpsHistory is None:
+        
+        if not gpsHistory:
             return
 
         if len(gpsHistory) > 2:
             round_speed = self.get_rounded_speed(gpsHistory[0].gSpeed, gpsHistory[1].gSpeed)
             acceleration = self.calculateAcceleration(gpsHistory[2], gpsHistory[1], gpsHistory[0])
-            average_speed = self.calculateAverageSpeed(self.app.get_distance(), self.app.get_start_date(), pvt.getDate())
-            if True:#round_speed > 0.5:
+            average_speed = self.calculateAverageSpeed(self.app.get_distance(), self.app.get_start_date(), gpsHistory[0].getDate())
+            if round_speed > 0.5:
                 self.update_values(value=(round(round_speed,1)),
                                    subvalue=round(acceleration,2),
                                    subvalue2=round(average_speed,2))

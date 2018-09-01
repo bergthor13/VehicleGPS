@@ -17,6 +17,26 @@ class MainView(Frame):
         self.registerGauges()
         self.setGaugeTitles()
         self.placeGauges()
+
+    def set_text_color(self, color):
+        self.speedGauge.set_text_color(color)
+        self.signalGauge.set_text_color(color)
+        self.miscGauge.set_text_color(color)
+
+        self.altitudeGauge.set_text_color(color)
+        self.tripGauge.set_text_color(color)
+        self.engineGauge.set_text_color(color)
+        
+    def set_background_color(self, color):
+
+        self.speedGauge.set_background_color(color)
+        self.signalGauge.set_background_color(color)
+        self.miscGauge.set_background_color(color)
+
+        self.altitudeGauge.set_background_color(color)
+        self.tripGauge.set_background_color(color)
+        self.engineGauge.set_background_color(color)
+
         
     def initializeGauges(self):
         self.speedGauge = SpeedGauge(self.app, self, background='white')
@@ -28,18 +48,20 @@ class MainView(Frame):
         self.engineGauge = EngineGauge(self.app, self, background='white')
 
     def registerGauges(self):
-        self.app.parser.register("UBX-NAV-PVT", self.speedGauge)
-        self.app.parser.register("UBX-NAV-PVT", self.signalGauge)
-        self.app.parser.register("UBX-NAV-PVT", self.tripGauge)
-        self.app.parser.register("UBX-NAV-PVT", self.altitudeGauge)
+        if self.app.parser is not None:
+            self.app.register("UBX-NAV-PVT", self.speedGauge)
+            self.app.register("UBX-NAV-PVT", self.signalGauge)
+            self.app.register("UBX-NAV-PVT", self.tripGauge)
+            self.app.register("UBX-NAV-PVT", self.altitudeGauge)
         
-        self.app.obd_comm.register("OBD-ENGINE_LOAD", self.engineGauge)
-        self.app.obd_comm.register("OBD-COOLANT_TEMP", self.engineGauge)
-        self.app.obd_comm.register("OBD-RPM", self.engineGauge)
+        if self.app.obd_comm is not None:
+            self.app.obd_comm.register("OBD-ENGINE_LOAD", self.engineGauge)
+            self.app.obd_comm.register("OBD-COOLANT_TEMP", self.engineGauge)
+            self.app.obd_comm.register("OBD-RPM", self.engineGauge)
 
-        self.app.obd_comm.register("OBD-RPM", self.miscGauge)
-        self.app.obd_comm.register("OBD-AMBIANT_AIR_TEMP", self.miscGauge)
-        self.app.obd_comm.register("OBD-THROTTLE_POS", self.miscGauge)
+            self.app.obd_comm.register("OBD-RPM", self.miscGauge)
+            self.app.obd_comm.register("OBD-AMBIANT_AIR_TEMP", self.miscGauge)
+            self.app.obd_comm.register("OBD-THROTTLE_POS", self.miscGauge)
 
 
     def setGaugeTitles(self):

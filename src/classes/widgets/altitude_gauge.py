@@ -18,6 +18,9 @@ class AltitudeGauge(MainGauge, Subscriber):
         
         gpsHistory = self.app.get_history(message)
 
+        if gpsHistory is None and len(gpsHistory) == 0:
+            return
+
         self.update_values(value=round(self.get_rounded_speed(pvt.hMSL, gpsHistory[1].hMSL),1))
 
     def get_rounded_speed(self, new_speed, old_speed):
