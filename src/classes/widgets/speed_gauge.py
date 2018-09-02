@@ -64,6 +64,8 @@ class SpeedGauge(MainGauge, Subscriber):
             return 0.0
 
     def calculateAverageSpeed(self, distance, start, end):
+        if not start or not end:
+            return
         duration = (end-start).seconds/60/60
         if not(duration == 0):
             return (distance/1000)/duration
