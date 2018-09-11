@@ -9,7 +9,7 @@ class AltitudeGauge(MainGauge, Subscriber):
     """
         A gauge that displays the speed, acceleration and average speed.
     """
-
+    altitude_round_count = 3
     def __init__(self, app, *args, **kwargs):
         MainGauge.__init__(self, *args, **kwargs)
         self.app = app
@@ -21,14 +21,20 @@ class AltitudeGauge(MainGauge, Subscriber):
         if gpsHistory is None and len(gpsHistory) == 0:
             return
 
-        self.update_values(value=round(self.get_rounded_speed(pvt.hMSL, gpsHistory[1].hMSL),1))
+        if not gpsHistory[0].flags.gnssFixOK:
+            return
+        if len(gpsHistory) > 1:
+            self.update_values(value=round(self.get_rounded_speed(gpsHistory),1))
 
-    def get_rounded_speed(self, new_speed, old_speed):
-        """
-        get_rounded_speed
-        """
-        if old_speed is None:
-            return new_speed
+    def get_rounded_speed(self, history):
+
+        value_count = min(self.altitude_round_count, len(history))
         
-        return (new_speed+old_speed)/2.0
-            
+        totalSpeed = 0.0
+        
+        for value in range(value_count):
+            totalSpeed += history[value].hMSL
+
+        if value_count == 0.0:
+            return 0.0
+        return totalSpeed/value_count

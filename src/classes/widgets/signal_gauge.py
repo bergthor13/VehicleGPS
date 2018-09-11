@@ -18,4 +18,4 @@ class SignalGauge(MainGauge, Subscriber):
         if not pvt.flags.gnssFixOK:
             self.update_values(value=pvt.numSv, subvalue="EKKERT", subvalue2="MERKI")
         else:
-            self.update_values(value=pvt.numSv, subvalue=str(round(pvt.hAcc, 2)) + ' m', subvalue2=str(round(pvt.pDop, 2)))
+            self.update_values(value=pvt.numSv, subvalue="{0:.2f}".format(pvt.hAcc) + ' m', subvalue2="{0:.2f}".format(pvt.pDop))

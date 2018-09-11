@@ -37,7 +37,7 @@ class MiscGauge(MainGauge, Subscriber):
             if value is None:
                 self.update_values(subvalue2="----")
             else:
-                self.update_values(subvalue2=int(value))
+                self.update_values(subvalue2=str(int(value))+"%")
 
     def getCurrentGear(self, speed, rpm):
         if rpm == 0.0:

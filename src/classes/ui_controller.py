@@ -11,7 +11,7 @@ class UI_Controller (threading.Thread):
     window_width = 320
     window_height = 240
     window_x_offset = 0
-    window_y_offset = 50
+    window_y_offset = 0
 
         
     status_bar = None

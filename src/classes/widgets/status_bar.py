@@ -69,17 +69,11 @@ class StatusBar(Frame, Subscriber):  # pylint: disable=too-many-ancestors
             self.wifiSymbol.config(image=self.img_no_wifi)
 
     def update(self, message, pvt):
-        # Update Speed Gauge
-
         if pvt.valid.validDate:
             self.set_date(pvt.getDate())
 
         if pvt.valid.validTime:
             self.set_time(pvt.getDate())
-
-        # Update Acceleration Gauge
-
-        # Update Average Speed Gauge
     
     def set_background_color(self, color):
         self.configure(background=color)

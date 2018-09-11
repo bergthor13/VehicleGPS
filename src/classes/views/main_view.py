@@ -39,13 +39,13 @@ class MainView(Frame):
 
         
     def initializeGauges(self):
-        self.speedGauge = SpeedGauge(self.app, self, background='white')
-        self.signalGauge = SignalGauge(self.app, self, background='white')
-        self.miscGauge = MiscGauge(self.app, self, background='white')
+        self.speedGauge = SpeedGauge(self.app, self, background='white', width=106)
+        self.signalGauge = SignalGauge(self.app, self, background='white', width=106)
+        self.miscGauge = MiscGauge(self.app, self, background='white', width=108)
 
-        self.altitudeGauge = AltitudeGauge(self.app, self, background='white')
-        self.tripGauge = TripGauge(self.app, self, background='white')
-        self.engineGauge = EngineGauge(self.app, self, background='white')
+        self.altitudeGauge = AltitudeGauge(self.app, self, background='white', width=106)
+        self.tripGauge = TripGauge(self.app, self, background='white', width=108)
+        self.engineGauge = EngineGauge(self.app, self, background='white',width=106)
 
     def registerGauges(self):
         if self.app.parser is not None:

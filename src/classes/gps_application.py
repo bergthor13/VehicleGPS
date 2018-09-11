@@ -33,7 +33,7 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
     parser = None
     obd_comm = None
 
-    __max_history = 5
+    __max_history = 12
     __history = {}
 
     __distance = 0.0
@@ -72,10 +72,12 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
         Publisher.__init__(self, ["UBX-NAV-PVT"])
         self.initialize_gpio()
         self.initializeGpsConnection()
+        self.config = UBX_Configurator(self.serial)
+        #elf.config.forceColdStart()
+
         self.initializeObdConnection()
 
         self.ui = UI_Controller(self)
-        self.config = UBX_Configurator(self.serial)
 
         # Start the 1-second interval ticker.
         self.tick()
@@ -95,9 +97,6 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
     def handle2(self, channel):
         self.ui.change_color()
 
-    def handle3(self, channel):
-        print("Clicked3!")
-
     def handle4(self, channel):
         print("Clicked4!")
 
@@ -105,12 +104,10 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
    
         GPIO.add_event_detect(17, GPIO.FALLING, callback=self.handle1, bouncetime=500)
         GPIO.add_event_detect(22, GPIO.FALLING, callback=self.handle2, bouncetime=500)
-        GPIO.add_event_detect(23, GPIO.FALLING, callback=self.handle3, bouncetime=500)
         GPIO.add_event_detect(27, GPIO.FALLING, callback=self.handle4, bouncetime=500)
 
     def initializeGpsConnection(self):
@@ -133,6 +130,8 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
         msgDict.insert(0, data)
         if len(self.__history.get(message)) > self.__max_history:
             del self.__history.get(message)[-1]
+
+        self.dispatch(message, data)
 
         if message == "OBD-RPM":
             history = self.get_history("UBX-NAV-PVT")
@@ -160,22 +159,22 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
 
 
         if message == "UBX-NAV-PVT":
-            self.dispatch(message, data)
-            
             self.log_to_file(data)
             
+            if self.__start_date is None and data.valid.validDate and data.valid.validTime:
+                self.__start_date = data.getDate()
+
             if not data.flags.gnssFixOK:
                 return
 
             if data.fixType < 1:
                 return
-
-            if self.__start_date is None:
-                self.__start_date = datetime.now()
+            
             gpsHistory = self.get_history("UBX-NAV-PVT")
 
             if gpsHistory is not None and len(gpsHistory) > 1:
-                self.__distance += vincenty((gpsHistory[1].lat, gpsHistory[1].lon), (data.lat, data.lon)).meters/1000
+                if gpsHistory[0].gSpeed > self.__log_speed_threshold:
+                    self.__distance += vincenty((gpsHistory[1].lat, gpsHistory[1].lon), (data.lat, data.lon)).meters/1000
 
     def initializeObdConnection(self):
         #print("Initializing OBD serial...")

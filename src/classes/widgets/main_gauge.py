@@ -22,7 +22,7 @@ class MainGauge(Frame):
 
     def __initialize_fonts(self):
         self.title_font = font.Font(family="Helvetica", size=8, weight="normal")
-        self.value_font = font.Font(family="FreeMono", size=25, weight="bold")
+        self.value_font = font.Font(family="FreeMono", size=24, weight="bold")
         self.subvalue_font = font.Font(family="FreeMono", size=16, weight="bold")
 
     def __initialize_widgets(self):
