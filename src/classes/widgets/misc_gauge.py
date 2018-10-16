@@ -37,7 +37,8 @@ class MiscGauge(MainGauge, Subscriber):
             if value is None:
                 self.update_values(subvalue2="----")
             else:
-                self.update_values(subvalue2=str(int(value))+"%")
+                mapped = self.translate(value, 11.372549019607844, 78.03921568627452, 0, 100)
+                self.update_values(subvalue2=str(int(mapped))+"%")
 
     def getCurrentGear(self, speed, rpm):
         if rpm == 0.0:
@@ -57,3 +58,14 @@ class MiscGauge(MainGauge, Subscriber):
             return "5"
         else:
             return "N"
+
+    def translate(self, value, leftMin, leftMax, rightMin, rightMax):
+        # Figure out how 'wide' each range is
+        leftSpan = leftMax - leftMin
+        rightSpan = rightMax - rightMin
+
+        # Convert the left range into a 0-1 range (float)
+        valueScaled = float(value - leftMin) / float(leftSpan)
+
+        # Convert the 0-1 range into a value in the right range.
+        return rightMin + (valueScaled * rightSpan)

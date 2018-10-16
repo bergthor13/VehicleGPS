@@ -14,7 +14,7 @@ class OBD_Communicator(threading.Thread, Publisher):
 
 	def __init__(self, app):
 		threading.Thread.__init__(self)
-		Publisher.__init__(self, ["OBD-COOLANT_TEMP", "OBD-ENGINE_LOAD", "OBD-AMBIANT_AIR_TEMP", "OBD-RPM", "OBD-THROTTLE_POS"])
+		Publisher.__init__(self, ["OBD-SPEED", "OBD-COOLANT_TEMP", "OBD-ENGINE_LOAD", "OBD-AMBIANT_AIR_TEMP", "OBD-RPM", "OBD-THROTTLE_POS"])
 
 		self.app = app
 		#obd.logger.setLevel(obd.logging.DEBUG)

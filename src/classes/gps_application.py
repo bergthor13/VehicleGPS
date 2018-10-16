@@ -3,11 +3,12 @@ import serial
 import constants
 import os
 import csv
+import time
 
 from os import listdir
 from os.path import isfile, join
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from subprocess import check_output
 from classes.ubx_configurator import UBX_Configurator
 from classes.ubx_serial_parser import UBX_Serial_Parser
@@ -17,6 +18,7 @@ from classes.pub_sub import Subscriber, Publisher
 from classes.data.pvt import *
 from classes.history_delegate import HistoryDelegate
 from geopy.distance import vincenty
+
 
 
 import RPi.GPIO as GPIO
@@ -33,7 +35,8 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
     parser = None
     obd_comm = None
 
-    __max_history = 12
+    __time_since_start = None
+    __max_history = 20
     __history = {}
 
     __distance = 0.0
@@ -56,6 +59,9 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
     def get_start_date(self):
         return self.__start_date
 
+    def get_time_since_start(self):
+        return self.__time_since_start
+
     def get_engine_running(self):
         return self.__engine_running
     def get_engine_start_time(self):
@@ -69,11 +75,12 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
         #    self.__brightness_pin.ChangeDutyCycle(value)
     
     def __init__(self):
+        self.__time_since_start = time.time()
         Publisher.__init__(self, ["UBX-NAV-PVT"])
         self.initialize_gpio()
         self.initializeGpsConnection()
         self.config = UBX_Configurator(self.serial)
-        #elf.config.forceColdStart()
+        #self.config.forceColdStart()
 
         self.initializeObdConnection()
 
@@ -82,8 +89,7 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
         # Start the 1-second interval ticker.
         self.tick()
 
-        filename = datetime.now().strftime("%Y-%m-%d %H%M%S.csv")
-        filepath = os.path.join(constants.LOG_DIRECTORY, filename)
+        filepath = self.get_file_name_from_date(datetime.now())
         self.log_file = open(filepath, 'a')
 
         for obdType in constants.OBDTypes.getAllTypes():
@@ -100,6 +106,11 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
     def handle4(self, channel):
         print("Clicked4!")
 
+    def get_file_name_from_date(self, date):
+        filename = date.strftime("%Y-%m-%d %H%M%S.csv")
+        filepath = os.path.join(constants.LOG_DIRECTORY, filename)
+        return filepath
+
     def initialize_gpio(self):
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
@@ -111,7 +122,6 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
         GPIO.add_event_detect(27, GPIO.FALLING, callback=self.handle4, bouncetime=500)
 
     def initializeGpsConnection(self):
-        #print("Initializing GPS serial...")
         self.serial = self.getSerial("/dev/ttyAMA0", 38400)
         if self.serial is not None:
             self.parser = UBX_Serial_Parser(self.serial, self)
@@ -121,9 +131,9 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
         else:
             print("GPS port not available")
 
-
     def update(self, message, data):
 
+        # Save the message to memory.
         msgDict = self.__history.get(message)
         if msgDict is None:
             msgDict = self.__history[message] = []
@@ -131,27 +141,24 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
         if len(self.__history.get(message)) > self.__max_history:
             del self.__history.get(message)[-1]
 
+        # Let subscribers know there is new data.
         self.dispatch(message, data)
 
         if message == "OBD-RPM":
-            history = self.get_history("UBX-NAV-PVT")
-            if history is None and len(history) == 0:
-                return
-            last_gps_msg = history[0]
             if data is not None:
                 # Engine has started.
                 if self.__engine_running is False and data != 0.0:
-                    if last_gps_msg is not None:
-                        self.__engine_start_time = last_gps_msg.getDate()
+                        self.__engine_start_time = time.time()
                 
                 # Engine has stopped
                 if self.__engine_running is True and data == 0.0:
-                    if last_gps_msg is not None and last_gps_msg.getDate() is not None:
-                        self.__engine_run_seconds += (last_gps_msg.getDate()-self.__engine_start_time).total_seconds()
+                        self.__engine_run_seconds += time.time() - self.__engine_start_time
                 
                 # Engine already running
                 if data != 0.0 and self.__engine_start_time is None:
-                    self.__engine_start_time = last_gps_msg.getDate()
+                    self.__engine_start_time = time.time()
+
+                # Update the boolean
                 if data == 0.0:
                     self.__engine_running = False
                 else:
@@ -162,7 +169,15 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
             self.log_to_file(data)
             
             if self.__start_date is None and data.valid.validDate and data.valid.validTime:
-                self.__start_date = data.getDate()
+                # Finally got an accurate date and time.
+                since_start = timedelta(seconds=(time.time()-self.__time_since_start))
+
+                self.__start_date = data.getDate() - since_start
+                newFilePath = self.get_file_name_from_date(self.__start_date)
+                self.log_file.close()
+                os.rename(self.log_file.name, newFilePath)
+                self.log_file = open(newFilePath, 'a')
+
 
             if not data.flags.gnssFixOK:
                 return
@@ -174,6 +189,11 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
 
             if gpsHistory is not None and len(gpsHistory) > 1:
                 if gpsHistory[0].gSpeed > self.__log_speed_threshold:
+                    
+                    if not gpsHistory[1].flags.gnssFixOK: return
+                    if gpsHistory[1].fixType < 1: return
+                    if gpsHistory[1].gSpeed > 200: return
+
                     self.__distance += vincenty((gpsHistory[1].lat, gpsHistory[1].lon), (data.lat, data.lon)).meters/1000
 
     def initializeObdConnection(self):

@@ -15,7 +15,14 @@ class SignalGauge(MainGauge, Subscriber):
         self.app = app
 
     def update(self, message, pvt):
-        if not pvt.flags.gnssFixOK:
+        if pvt.fixType < 1:
             self.update_values(value=pvt.numSv, subvalue="EKKERT", subvalue2="MERKI")
         else:
-            self.update_values(value=pvt.numSv, subvalue="{0:.2f}".format(pvt.hAcc) + ' m', subvalue2="{0:.2f}".format(pvt.pDop))
+            if pvt.hAcc >= 100:
+                self.update_values(subvalue="{0:.0f} m".format(pvt.hAcc))
+            elif pvt.hAcc >= 10:
+                self.update_values(subvalue="{0:.1f} m".format(pvt.hAcc))
+            else:
+                self.update_values(subvalue="{0:.2f} m".format(pvt.hAcc))
+                
+            self.update_values(value=pvt.numSv, subvalue2="{0:.2f}".format(pvt.pDop))
