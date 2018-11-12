@@ -3,9 +3,7 @@ from tkinter import font, Label, Frame
 from classes.widgets.main_gauge import MainGauge
 from classes.pub_sub import Subscriber
 from classes.data.pvt import PVT
-from geopy.distance import vincenty
 from datetime import timedelta
-
 
 class SpeedGauge(MainGauge, Subscriber):
     """
@@ -20,12 +18,19 @@ class SpeedGauge(MainGauge, Subscriber):
 
     def update(self, message, pvt):
         gpsHistory = self.app.get_history(message)
-        
+        obd_speed_history = self.app.get_history("OBD-SPEED")
+        curr_obd_speed = None
+        if obd_speed_history is not None:
+            if obd_speed_history:
+                curr_obd_speed = obd_speed_history[0]
+
         if not gpsHistory:
             return
 
         if len(gpsHistory) > 2:
             filtered_speed = self.get_rounded_speed(gpsHistory)
+            if pvt.fixType < 1 and curr_obd_speed is not None:
+                filtered_speed = curr_obd_speed
             acceleration = self.calculateAcceleration(gpsHistory, timedelta(seconds=1), 3)
             average_speed = self.calculateAverageSpeed(self.app.get_distance(), self.app.get_start_date(), gpsHistory[0].getDate())
             if average_speed is not None:

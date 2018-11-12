@@ -90,6 +90,7 @@ class PVT():
         pvt_string += str(self.hAcc) + ","
         pvt_string += str(self.vAcc) + ","
         pvt_string += str(self.pDop) + ","
+        pvt_string += str(self.fixType) + ","
         pvt_string += str(self.flags) + ","
         pvt_string += str(self.valid)
         return pvt_string

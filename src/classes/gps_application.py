@@ -1,15 +1,18 @@
+import time
 import threading
 import serial
 import constants
 import os
+import sys
+import os.path
 import csv
-import time
+import RPi.GPIO as GPIO
 
 from os import listdir
 from os.path import isfile, join
 
 from datetime import datetime, timedelta
-from subprocess import check_output
+from subprocess import check_output, Popen, CalledProcessError, PIPE, STDOUT
 from classes.ubx_configurator import UBX_Configurator
 from classes.ubx_serial_parser import UBX_Serial_Parser
 from classes.obd_communicator import OBD_Communicator
@@ -18,10 +21,6 @@ from classes.pub_sub import Subscriber, Publisher
 from classes.data.pvt import *
 from classes.history_delegate import HistoryDelegate
 from geopy.distance import vincenty
-
-
-
-import RPi.GPIO as GPIO
 
 '''
 GPSApp
@@ -64,8 +63,10 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
 
     def get_engine_running(self):
         return self.__engine_running
+
     def get_engine_start_time(self):
         return self.__engine_start_time 
+
     def get_engine_run_seconds(self):
         return self.__engine_run_seconds
 
@@ -83,7 +84,10 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
         #self.config.forceColdStart()
 
         self.initializeObdConnection()
-
+        if not os.path.isfile(constants.COLOR_MODE_FILE):
+            with open(constants.COLOR_MODE_FILE, 'w+') as color_mode:
+                color_mode.write("light")
+        
         self.ui = UI_Controller(self)
 
         # Start the 1-second interval ticker.
@@ -98,13 +102,71 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
         constants.OBDTypes.getAllTypes()
 
     def handle1(self, channel):
-        self.ui.display_settings()
+        self.ui.display_settings(None)
     
     def handle2(self, channel):
         self.ui.change_color()
 
-    def handle4(self, channel):
-        print("Clicked4!")
+    def upload_log_files(self, channel):
+        self.ui.upload_alert_view.set_alert_title("Upload Log Files")
+        self.ui.display_upload_alert()
+        filepath = ""
+        if self.__start_date is None:
+            self.__time_since_start = time.time()
+            filepath = self.get_file_name_from_date(datetime.now())
+        else:
+            currDate = self.get_history("UBX-NAV-PVT")[0].getDate()
+            self.__start_date = currDate
+            filepath = self.get_file_name_from_date(currDate)
+        self.log_file.close()
+        self.log_file = open(filepath, 'a')
+        self.__distance = 0.0
+        self.__engine_start_time = time.time()
+        self.__engine_run_seconds = 0.0
+        
+        log_files = [f for f in listdir(constants.LOG_DIRECTORY) if isfile(join(constants.LOG_DIRECTORY, f)) and f != os.path.basename(self.log_file.name) and f.endswith(".csv")]
+        if not log_files:
+            self.ui.upload_alert_view.set_alert_message("No files to upload")
+            time.sleep(3)
+            self.ui.hide_upload_alert()
+            return
+        
+        self.ui.upload_alert_view.set_alert_message("Connecting to Dropbox")
+        import dropbox
+        dropbox_key = ""
+        with open(constants.DROPBOX_KEY_FILE, 'r') as key_file:
+            dropbox_key = key_file.read()
+
+        dbx = dropbox.Dropbox(dropbox_key)
+        log_files.sort()
+        try:
+            file_count = len(log_files)
+            for index, log_file in enumerate(log_files):
+                full_path = join(constants.LOG_DIRECTORY, log_file)
+                message_string = "Uploading file:\n{0} of {1}\n{2}".format(index+1, file_count, log_file)
+                self.ui.upload_alert_view.set_alert_message(message_string)
+                with open(full_path, "rb") as currFile:
+                        dbx.files_upload(currFile.read(), "/Unprocessed/" + log_file)
+                        os.rename(full_path, join(constants.ORIGINAL_LOG_DIRECTORY, log_file))
+            self.ui.upload_alert_view.set_alert_message("Upload Complete!")
+            time.sleep(3)
+            self.ui.hide_upload_alert()
+
+
+        except Exception as ex:
+            self.ui.upload_alert_view.set_alert_title("Upload Failed")
+            if hasattr(ex, 'message'):
+                self.ui.upload_alert_view.set_alert_message(ex.message)
+                print(ex.message)
+            else:
+                self.ui.upload_alert_view.set_alert_message(ex)
+                print(ex)
+            
+            time.sleep(3)
+            self.ui.hide_upload_alert()
+        finally:
+            self.ui.hide_upload_alert()
+
 
     def get_file_name_from_date(self, date):
         filename = date.strftime("%Y-%m-%d %H%M%S.csv")
@@ -119,7 +181,7 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
    
         GPIO.add_event_detect(17, GPIO.FALLING, callback=self.handle1, bouncetime=500)
         GPIO.add_event_detect(22, GPIO.FALLING, callback=self.handle2, bouncetime=500)
-        GPIO.add_event_detect(27, GPIO.FALLING, callback=self.handle4, bouncetime=500)
+        GPIO.add_event_detect(27, GPIO.FALLING, callback=self.upload_log_files, bouncetime=500)
 
     def initializeGpsConnection(self):
         self.serial = self.getSerial("/dev/ttyAMA0", 38400)
@@ -193,23 +255,20 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
                     if not gpsHistory[1].flags.gnssFixOK: return
                     if gpsHistory[1].fixType < 1: return
                     if gpsHistory[1].gSpeed > 200: return
-
                     self.__distance += vincenty((gpsHistory[1].lat, gpsHistory[1].lon), (data.lat, data.lon)).meters/1000
 
     def initializeObdConnection(self):
-        #print("Initializing OBD serial...")
         obdSerial = self.getSerial("/dev/ttyUSB0", 9600)
-        if obdSerial is None:
-            pass#print("OBD port not available")
-        else:
+        if obdSerial is not None:
             obdSerial.close()
             self.obd_comm = OBD_Communicator(self)
 
             self.obd_comm.register("OBD-RPM", self)
             self.obd_comm.register("OBD-THROTTLE_POS", self)
-            self.obd_comm.register("OBD-AMBIANT_AIR_TEMP", self)
+            self.obd_comm.register("OBD-AMBIANT_AIR_TEMP", self, interval=5)
             self.obd_comm.register("OBD-ENGINE_LOAD", self)
-            self.obd_comm.register("OBD-COOLANT_TEMP", self)
+            self.obd_comm.register("OBD-COOLANT_TEMP", self, interval=1)
+            self.obd_comm.register("OBD-SPEED", self)
             self.obd_comm.start()
             self.hasOBDConnection = True
 
@@ -219,7 +278,13 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
         Starts the UI and parser threads
     '''
     def start(self):
+        with open(constants.COLOR_MODE_FILE, 'r') as color_mode:
+            if color_mode.read() == "dark":
+                self.ui.is_night = True
         self.ui.start()
+
+        
+
         if self.hasGPSConnection:
             self.configureUBX()
 
@@ -241,13 +306,15 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
         Checks if we have an IP address.
     '''
     def checkForInternet(self):
-        wifi_ip = check_output(['hostname', '-I'])
-        if not (wifi_ip == b'\n'):
-            self.hasInternet = True
-            #self.uploadLogFiles()
-        else:
+        ps = Popen(['iwconfig'], stdout=PIPE, stderr=STDOUT)
+        try:
+            output = check_output(('grep', 'Access Point: Not-Associated'), stdin=ps.stdout)
             self.hasInternet = False
-        self.ui.updateWiFi(self.hasInternet)
+        except CalledProcessError:
+            self.hasInternet = True
+            
+        finally:
+            self.ui.updateWiFi(self.hasInternet)
 
     '''
         Runs every second to keep the UI updated,
@@ -262,14 +329,6 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
         
         threading.Timer(1, self.tick).start()
 
-    def uploadLogFiles(self):
-        for f in listdir(constants.LOG_DIRECTORY):
-            filePath = join(constants.LOG_DIRECTORY, f)
-            if isfile(filePath):
-                pass
-                # with open(filePath, 'r') as originalFile:
-                #     print(originalFile.readlines())
-
     ### EVENTS
     def didClickUpdateRate(self, rate):
         self.config.setRateSettings(rate, 1, 1)
@@ -282,16 +341,19 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
             return str(history[0])
         except IndexError:
             return "None"
-        return 
+        return
 
     def log_to_file(self, solution):
         log_line = str(solution) + ","
-        
+
         log_line += self.generate_log_item("OBD-RPM") + ","
         log_line += self.generate_log_item("OBD-ENGINE_LOAD") + ","
         log_line += self.generate_log_item("OBD-COOLANT_TEMP") + ","
         log_line += self.generate_log_item("OBD-AMBIANT_AIR_TEMP") + ","
         log_line += self.generate_log_item("OBD-THROTTLE_POS") + "\n"
 
-        self.log_file.write(log_line)
-        self.log_file.flush()
+        if self.log_file is None:
+            return
+        if not self.log_file.closed:
+            self.log_file.write(log_line)
+            self.log_file.flush()

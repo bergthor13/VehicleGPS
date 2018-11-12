@@ -14,7 +14,8 @@ class StatusBar(Frame, Subscriber):  # pylint: disable=too-many-ancestors
     img_wifi = None
     img_no_wifi = None
     weekdays = None
-
+    def_date = "---, --.--.----"
+    def_time = "--:--:--"
     # Private methods
     def __init__(self, *args, **kwargs):
         Frame.__init__(self, *args, **kwargs)
@@ -30,18 +31,18 @@ class StatusBar(Frame, Subscriber):  # pylint: disable=too-many-ancestors
 
     def __initialize_widgets(self):
         self.date_label = Label(self,
-                                text="---, --.--.----",
+                                text=self.def_date,
                                 background="black",
                                 fg="white",
                                 font=self.status_bar_font)
 
         self.time_label = Label(self,
-                                text="--:--:--",
+                                text=self.def_time,
                                 background="black",
                                 fg="white",
                                 font=self.status_bar_font)
 
-        self.wifiSymbol = Label(self,
+        self.wifi_symbol = Label(self,
                                 image=self.img_no_wifi,
                                 background="black",
                                 fg="white")
@@ -49,7 +50,7 @@ class StatusBar(Frame, Subscriber):  # pylint: disable=too-many-ancestors
     def __place_widgets(self):
         self.date_label.pack(side=LEFT, padx=(3, 0))
         self.time_label.pack(side=RIGHT, padx=(0, 3))
-        self.wifiSymbol.pack(side=RIGHT, padx=(0, 3))
+        self.wifi_symbol.pack(side=RIGHT, padx=(0, 3))
 
     # Public methods
     def set_date(self, date):
@@ -64,16 +65,20 @@ class StatusBar(Frame, Subscriber):  # pylint: disable=too-many-ancestors
     def update_wifi_symbol(self, hasInternet):
         """Updates the Wi-Fi symbol in the status bar."""
         if hasInternet:
-            self.wifiSymbol.config(image=self.img_wifi)
+            self.wifi_symbol.config(image=self.img_wifi)
         else:
-            self.wifiSymbol.config(image=self.img_no_wifi)
+            self.wifi_symbol.config(image=self.img_no_wifi)
 
     def update(self, message, pvt):
         if pvt.valid.validDate:
             self.set_date(pvt.getDate())
+        else:
+            self.date_label.config(text=self.def_date)
 
         if pvt.valid.validTime:
             self.set_time(pvt.getDate())
+        else:
+            self.time_label.config(text=self.def_time)
     
     def set_background_color(self, color):
         self.configure(background=color)
@@ -83,3 +88,11 @@ class StatusBar(Frame, Subscriber):  # pylint: disable=too-many-ancestors
     def set_text_color(self, color):
         self.date_label.configure(fg=color)
         self.time_label.configure(fg=color)
+
+    def bind(self, button, callback, add_to_child_views):
+        super(StatusBar, self).bind(button, callback)
+        if add_to_child_views:
+            self.date_label.bind(button, callback)
+            self.time_label.bind(button, callback)
+            self.wifi_symbol.bind(button, callback)
+

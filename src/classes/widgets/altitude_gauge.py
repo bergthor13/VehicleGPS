@@ -2,8 +2,6 @@
 from tkinter import font, Label, Frame
 from classes.widgets.main_gauge import MainGauge
 from classes.pub_sub import Subscriber
-from geopy.distance import vincenty
-
 
 class AltitudeGauge(MainGauge, Subscriber):
     """
