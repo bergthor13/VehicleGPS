@@ -11,8 +11,8 @@ class AltitudeGauge(MainGauge, Subscriber):
     altitude_round_count = 3
     partial_time = datetime.time(6, 50)
     total_time = datetime.time(6, 59)
-    partial_distance = 31.5
-    total_distance = 39.1
+    partial_distance = 31.9
+    total_distance = 39.32
     def __init__(self, app, *args, **kwargs):
         MainGauge.__init__(self, *args, **kwargs)
         self.app = app
@@ -38,13 +38,13 @@ class AltitudeGauge(MainGauge, Subscriber):
             self.update_values(value=round(self.get_rounded_speed(gpsHistory),1))
 
     def display_total_speed(self, speed):
-        if speed is not None:
+        if speed is not None and (speed > 0 and speed < 150):
             self.update_values(subvalue="{0:.2f}".format(round(speed,2)))
         else:
             self.update_values(subvalue="--.-")
     
     def display_partial_speed(self, speed):
-        if speed is not None:
+        if speed is not None and (speed > 0 and speed < 150):
             self.update_values(subvalue2="{0:.2f}".format(round(speed,2)))
         else:
             self.update_values(subvalue2="--.-")
