@@ -26,6 +26,12 @@ class UBX_Configurator:
     def saveCurrentSettings(self):
         pass
 
+    def set_gnss_config(self):
+        msgCls = 0x06; msgId = 0x3E
+        
+        #self.sendMessage(msgCls, msgId, )
+
+
     def forceColdStart(self):
         msgCls = 0x06; msgId = 0x04
         navBbrMask = 0xFFFF.to_bytes(2, byteorder="little")
