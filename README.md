@@ -25,7 +25,7 @@ chmod +x adafruit-pitft.sh
 sudo ./adafruit-pitft.sh
 ```
 
-When running the `adafruit-pitft.sh` file select `3, 1, Y, N` if you are using a capacitive screen.
+When running the `adafruit-pitft.sh` file select `3, 1, N, Y` if you are using a capacitive screen.
 
 ### Install Openbox and X11
 Install a desktop environment to display the VehicleGPS program in.
