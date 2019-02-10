@@ -73,6 +73,7 @@ dtoverlay=pi3-miniuart-bt
 dtoverlay=pitft28-capacitive,rotate=90,speed=32000000,fps=20
 dtoverlay=pitft28-capacitive,touch-swapxy=true,touch-invx=true
 ```
+[Thanks to Pieter Hollants](https://www.0xf8.org/2016/01/complete-rotation-support-for-the-adafruit-pitft-2-8-capacitive-touchscreen-display/)
 
 ### Edit file `.bashrc`
 Add this line to the file:
