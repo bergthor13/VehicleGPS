@@ -3,24 +3,17 @@ import struct
 import binascii
 from datetime import datetime
 from collections import namedtuple
-from classes.gps_logger import Observable
+from classes.pub_sub import Publisher
+from classes.data.pvt import PVT
 
-class UBX_Serial_Parser (threading.Thread, Observable):
-    observers = []
+class UBX_Serial_Parser (threading.Thread, Publisher):
     syncChar1 = b'\xB5'
     syncChar2 = b'\x62'
     def __init__(self, serial, app):
         threading.Thread.__init__(self)
+        Publisher.__init__(self, ["UBX-NAV-PVT"])
         self.serial = serial
         self.app = app
-
-    def addObserver(self, obs):
-        self.observers.append(obs)
-
-    def notifyObservers(self, data):
-        for observer in self.observers:
-            observer.update(data)
-
 
     def findHeader(self):
         while True:
@@ -67,8 +60,7 @@ class UBX_Serial_Parser (threading.Thread, Observable):
             sol = self.unpackSolution()
             if sol == None:
                 continue
-            self.notifyObservers(sol)
-            self.app.notify(sol)
+            self.dispatch("UBX-NAV-PVT", PVT(sol))
 
     def calculateChecksum(self, message):
         ckA, ckB = 0, 0

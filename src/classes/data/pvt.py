@@ -82,7 +82,18 @@ class PVT():
         return date
     
     def __str__(self):
-        return "$GPS," + self.getDate().isoformat() + "," + str(self.lat) + "," + str(self.lon) + "," + str(self.hMSL) + "," + str(self.numSv) + "," + str(self.hAcc) + "," + str(self.vAcc) + "," + str(self.pDop) + "," + str(self.flags) + "," + str(self.valid)
+        pvt_string = self.getDate().isoformat() + ","
+        pvt_string += str(self.lat) + ","
+        pvt_string += str(self.lon) + ","
+        pvt_string += str(self.hMSL) + ","
+        pvt_string += str(self.numSv) + ","
+        pvt_string += str(self.hAcc) + ","
+        pvt_string += str(self.vAcc) + ","
+        pvt_string += str(self.pDop) + ","
+        pvt_string += str(self.fixType) + ","
+        pvt_string += str(self.flags) + ","
+        pvt_string += str(self.valid)
+        return pvt_string
 
 class PVT_valid:
     validDate = None

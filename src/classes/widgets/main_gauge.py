@@ -22,7 +22,7 @@ class MainGauge(Frame):
 
     def __initialize_fonts(self):
         self.title_font = font.Font(family="Helvetica", size=8, weight="normal")
-        self.value_font = font.Font(family="FreeMono", size=25, weight="bold")
+        self.value_font = font.Font(family="FreeMono", size=24, weight="bold")
         self.subvalue_font = font.Font(family="FreeMono", size=16, weight="bold")
 
     def __initialize_widgets(self):
@@ -67,3 +67,17 @@ class MainGauge(Frame):
             self.sub_gauge1_label.config(text=str(subvalue))
         if subvalue2 is not None:
             self.sub_gauge2_label.config(text=str(subvalue2))
+
+    def set_background_color(self, color):
+        self.configure(background=color)
+        self.title_label.configure(background=color)
+        self.main_gauge_label.configure(background=color)
+        self.sub_gauge1_label.configure(background=color)
+        self.sub_gauge2_label.configure(background=color)
+
+    def set_text_color(self, color):
+        self.title_label.configure(fg=color)
+        self.main_gauge_label.configure(fg=color)
+        self.sub_gauge1_label.configure(fg=color)
+        self.sub_gauge2_label.configure(fg=color)
+

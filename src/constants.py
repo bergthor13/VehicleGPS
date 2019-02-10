@@ -1,9 +1,11 @@
 LOG_DIRECTORY = "/home/pi/Tracks"
 ORIGINAL_LOG_DIRECTORY = "/home/pi/Tracks/Original"
 GPX_LOG_DIRECTORY = "/home/pi/Tracks/GPX"
-JSON_LOG_DIRECTORY = "/home/pi/Tracks/JSON"
+COLOR_MODE_FILE = "/home/pi/color_mode.txt"
+DROPBOX_KEY_FILE = "/home/pi/dropbox_key.txt"
 BACKGROUND_COLOR = "white"
 TEXT_COLOR = "black"
+
 
 class OBDTypes:
 	RPM = "RPM"
