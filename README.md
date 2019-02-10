@@ -1,4 +1,18 @@
 # VehicleGPS
+## Overview
+VehicleGPS is a program written in Python that communicates with an u-blox GPS chip using the UBX protocol, and displays various data points. VehicleGPS can also communicate with a car using the OBD-II protocol and display data from the car's computer and its various sensors.
+### Screens structure
+The main screen is divided into 2 main sections. Status bar and main view. The status bar is always visible. The main view is used for multiple views. For example the Gauge view or the Settings view.
+
+### Gauge view
+This view is divided into six parts:  
+Speed  
+Various OBD Data Points  
+Engine  
+Altitude  
+Trip  
+Signal
+
 ## Hardware requirements
 - Raspberry Pi Model B (2B, 3B, 3B+)
 - SD card with Raspbian Stretch Lite installed
