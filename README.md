@@ -81,4 +81,22 @@ Add this line to the file:
 startx -- -nocursor
 ```
 
-TODO: To be continued...
+### Edit file `.xinitrc`
+Add these lines to the file:
+```
+xset -dpms s off
+. /etc/X11/Xsession
+exec openbox-session
+```
+### Create the folder `openbox` and file `autostart`
+Create the folder `openbox` in `~/.config/`
+Then create the file `autostart` in the `openbox` folder.
+Add these lines to the `autostart` file:
+```
+nitrogen --restore &
+sudo python3.6 /home/pi/VehicleGPS/src/main.py &
+```
+
+### Install required font
+Install a font that is used on the device with this command:
+`sudo apt-get install ttf-freefont`
