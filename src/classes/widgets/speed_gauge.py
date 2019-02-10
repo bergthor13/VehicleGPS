@@ -25,6 +25,8 @@ class SpeedGauge(MainGauge, Subscriber):
                 curr_obd_speed = obd_speed_history[0]
 
         if not gpsHistory:
+            if curr_obd_speed is not None:
+                self.displayCurrentSpeed(curr_obd_speed)
             return
 
         if len(gpsHistory) > 2:
@@ -37,18 +39,22 @@ class SpeedGauge(MainGauge, Subscriber):
                 self.update_values(subvalue2="{0:.2f}".format(round(average_speed,2)))
             
             if filtered_speed > 0.5 and acceleration is not None:
-                if acceleration < 0:
-                    self.update_values(subvalue="-{0:.1f}".format(abs(acceleration)))
-                else:
-                    self.update_values(subvalue=" {0:.1f}".format(acceleration))
-                if round(filtered_speed,1) < 100: 
-                    self.update_values(value="{0:.1f}".format(filtered_speed))
-                else:
-                    self.update_values(value="{0:.0f}".format(filtered_speed))
-
+                self.displayCurrentSpeed(filtered_speed)
+                self.displayCurrentAcceleration(acceleration)
             else:
                 self.update_values(value=0.0, subvalue=" {0:.1f}".format(0.0))
 
+    def displayCurrentSpeed(self, filtered_speed):
+        if round(filtered_speed,1) < 100: 
+            self.update_values(value="{0:.1f}".format(filtered_speed))
+        else:
+            self.update_values(value="{0:.0f}".format(filtered_speed))
+
+    def displayCurrentAcceleration(self, acceleration):
+        if acceleration < 0:
+            self.update_values(subvalue="-{0:.1f}".format(abs(acceleration)))
+        else:
+            self.update_values(subvalue=" {0:.1f}".format(acceleration))
 
 
     def get_rounded_speed(self, history):

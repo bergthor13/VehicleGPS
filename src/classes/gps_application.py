@@ -38,7 +38,7 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
     __max_history = 20
     __history = {}
 
-    __distance = 0.0
+    __distance = 0.0 # In kilometers
     __start_date = None
 
     __engine_running = False
@@ -236,9 +236,10 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
 
                 self.__start_date = data.getDate() - since_start
                 newFilePath = self.get_file_name_from_date(self.__start_date)
-                self.log_file.close()
-                os.rename(self.log_file.name, newFilePath)
-                self.log_file = open(newFilePath, 'a')
+                if self.log_file is not None:
+                    self.log_file.close()
+                    os.rename(self.log_file.name, newFilePath)
+                    self.log_file = open(newFilePath, 'a')
 
 
             if not data.flags.gnssFixOK:
