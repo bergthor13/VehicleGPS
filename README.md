@@ -89,8 +89,8 @@ xset -dpms s off
 exec openbox-session
 ```
 ### Create the folder `openbox` and file `autostart`
-Create the folder `openbox` in `~/.config/`
-Then create the file `autostart` in the `openbox` folder.
+Create the folder `openbox` in `~/.config/`  
+Then create the file `autostart` in the `openbox` folder.  
 Add these lines to the `autostart` file:
 ```
 nitrogen --restore &
