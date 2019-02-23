@@ -5,6 +5,7 @@ VehicleGPS is a program written in Python that communicates with an u-blox GPS c
 The main screen is divided into 2 main sections. Status bar and main view. The status bar is always visible. The main view is used for multiple views. For example the Gauge view or the Settings view.
 
 ### [Gauge view](https://github.com/bergthor13/VehicleGPS/blob/master/doc/gauge_view.md)
+### [Settings view](https://github.com/bergthor13/VehicleGPS/blob/master/doc/settings_view.md)
 
 ## Hardware requirements
 - Raspberry Pi Model B (2B, 3B, 3B+)
