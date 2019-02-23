@@ -5,6 +5,9 @@ VehicleGPS is a program written in Python that communicates with an u-blox GPS c
 The main screen is divided into 2 main sections. Status bar and main view. The status bar is always visible. The main view is used for multiple views. For example the Gauge view or the Settings view.
 
 ### Gauge view
+
+![](https://github.com/bergthor13/VehicleGPS/raw/master/doc/img/gauge-dark.png)  ![](https://github.com/bergthor13/VehicleGPS/raw/master/doc/img/gauge-light.png)    
+
 This view is divided into six parts:  
 Speed  
 Various OBD Data Points  
