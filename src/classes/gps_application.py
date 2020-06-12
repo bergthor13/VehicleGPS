@@ -130,50 +130,6 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
     
         time.sleep(1.5)
         self.ui.hide_upload_alert()
-        
-#        log_files = [f for f in listdir(constants.LOG_DIRECTORY) if isfile(join(constants.LOG_DIRECTORY, f)) and f != os.path.basename(self.log_file.name) and f.endswith(".csv")]
-#        if not log_files:
-#            self.ui.upload_alert_view.set_alert_message("No files to upload")
-#            time.sleep(3)
-#            self.ui.hide_upload_alert()
-#            return
-#
-#        self.ui.upload_alert_view.set_alert_message("Connecting to Dropbox")
-#        import dropbox
-#        dropbox_key = ""
-#        with open(constants.DROPBOX_KEY_FILE, 'r') as key_file:
-#            dropbox_key = key_file.read()
-#
-#        dbx = dropbox.Dropbox(dropbox_key)
-#        log_files.sort()
-#        try:
-#            file_count = len(log_files)
-#            for index, log_file in enumerate(log_files):
-#                full_path = join(constants.LOG_DIRECTORY, log_file)
-#                message_string = "Uploading file:\n{0} of {1}\n{2}".format(index+1, file_count, log_file)
-#                self.ui.upload_alert_view.set_alert_message(message_string)
-#                with open(full_path, "rb") as currFile:
-#                        dbx.files_upload(currFile.read(), "/Unprocessed/" + log_file)
-#                        os.rename(full_path, join(constants.ORIGINAL_LOG_DIRECTORY, log_file))
-#            self.ui.upload_alert_view.set_alert_message("Upload Complete!")
-#            time.sleep(3)
-#            self.ui.hide_upload_alert()
-#
-#
-#        except Exception as ex:
-#            self.ui.upload_alert_view.set_alert_title("Upload Failed")
-#            if hasattr(ex, 'message'):
-#                self.ui.upload_alert_view.set_alert_message(ex.message)
-#                print(ex.message)
-#            else:
-#                self.ui.upload_alert_view.set_alert_message(ex)
-#                print(ex)
-#            
-#            time.sleep(3)
-#            self.ui.hide_upload_alert()
-#        finally:
-#            self.ui.hide_upload_alert()
-
 
     def get_file_name_from_date(self, date):
         filename = date.strftime("%Y-%m-%d %H%M%S.csv")
@@ -191,7 +147,7 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
         GPIO.add_event_detect(27, GPIO.FALLING, callback=self.upload_log_files, bouncetime=500)
 
     def initializeGpsConnection(self):
-        self.serial = self.getSerial("/dev/ttyAMA0", 38400)
+        self.serial = self.getSerial(constants.GPS_SERIAL_PORT, constants.GPS_BAUD_RATE)
         if self.serial is not None:
             self.parser = UBX_Serial_Parser(self.serial, self)
             self.parser.register("UBX-NAV-PVT", self)
@@ -267,7 +223,7 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
                     self.__distance += vincenty((gpsHistory[1].lat, gpsHistory[1].lon), (data.lat, data.lon)).meters/1000
 
     def initializeObdConnection(self):
-        obdSerial = self.getSerial("/dev/ttyUSB0", 9600)
+        obdSerial = self.getSerial(constants.OBD_SERIAL_PORT, constants.OBD_BAUD_RATE)
         if obdSerial is not None:
             obdSerial.close()
             self.obd_comm = OBD_Communicator(self)

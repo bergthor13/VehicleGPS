@@ -6,6 +6,11 @@ DROPBOX_KEY_FILE = "/home/pi/dropbox_key.txt"
 BACKGROUND_COLOR = "white"
 TEXT_COLOR = "black"
 
+GPS_SERIAL_PORT = "/dev/ttyAMA0"
+GPS_BAUD_RATE = 38400
+
+OBD_SERIAL_PORT = "/dev/ttyUSB0"
+OBD_BAUD_RATE = 9600
 
 class OBDTypes:
 	RPM = "RPM"
