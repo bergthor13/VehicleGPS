@@ -55,7 +55,7 @@ class UI_Controller (threading.Thread):
         self.app.parser.register("UBX-NAV-PVT", self.status_bar)
         self.main_view = MainView(self.app, self.root)
         self.settings_view = SettingsView(self, self.root)
-        self.upload_alert_view = AlertView(self.root, width=280, height=160, relief='raised')
+        self.upload_alert_view = AlertView(self.root, width=280, height=75, relief='raised')
         if self.is_night:
             self.set_theme("black", "green")
         else:
@@ -110,7 +110,7 @@ class UI_Controller (threading.Thread):
             self.display_view(self.settings_view)
 
     def display_upload_alert(self):
-        self.upload_alert_view.place(x=20, y=40,anchor="nw")
+        self.upload_alert_view.place(x=20, y=82.5,anchor="nw")
 
     def hide_upload_alert(self):
         self.upload_alert_view.place_forget()

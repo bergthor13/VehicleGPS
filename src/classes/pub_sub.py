@@ -1,3 +1,4 @@
+import logging, traceback
 class Subscriber:
     def update(self, message, data):
         '''Called when the observed object is
@@ -27,4 +28,8 @@ class Publisher:
         subs = self.get_subscribers(event)
         if subs is not None:
             for subscriber, callback in list(subs.items()):
-                callback(event, message)
+                try:
+                    callback(event, message)
+                except Exception as ex:
+                    logging.getLogger().error(traceback.format_exc())
+                    

@@ -9,8 +9,8 @@ class AltitudeGauge(MainGauge, Subscriber):
         A gauge that displays the speed, acceleration and average speed.
     """
     altitude_round_count = 3
-    partial_time = datetime.time(6, 50)
-    total_time = datetime.time(6, 59)
+    partial_time = datetime.time(7, 51, 30)
+    total_time = datetime.time(7, 58, 30)
     partial_distance = 31.9
     total_distance = 39.32
     def __init__(self, app, *args, **kwargs):

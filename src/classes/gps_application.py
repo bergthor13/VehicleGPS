@@ -21,6 +21,8 @@ from classes.pub_sub import Subscriber, Publisher
 from classes.data.pvt import *
 from classes.history_delegate import HistoryDelegate
 from geopy.distance import vincenty
+import logging
+
 
 '''
 GPSApp
@@ -108,8 +110,10 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
         self.ui.change_color()
 
     def upload_log_files(self, channel):
-        self.ui.upload_alert_view.set_alert_title("Upload Log Files")
+        self.ui.upload_alert_view.set_alert_title("New Log File")
+        self.ui.upload_alert_view.set_alert_message("Now writing to a new log file.")
         self.ui.display_upload_alert()
+        
         filepath = ""
         if self.__start_date is None:
             self.__time_since_start = time.time()
@@ -123,49 +127,52 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
         self.__distance = 0.0
         self.__engine_start_time = time.time()
         self.__engine_run_seconds = 0.0
+    
+        time.sleep(1.5)
+        self.ui.hide_upload_alert()
         
-        log_files = [f for f in listdir(constants.LOG_DIRECTORY) if isfile(join(constants.LOG_DIRECTORY, f)) and f != os.path.basename(self.log_file.name) and f.endswith(".csv")]
-        if not log_files:
-            self.ui.upload_alert_view.set_alert_message("No files to upload")
-            time.sleep(3)
-            self.ui.hide_upload_alert()
-            return
-        
-        self.ui.upload_alert_view.set_alert_message("Connecting to Dropbox")
-        import dropbox
-        dropbox_key = ""
-        with open(constants.DROPBOX_KEY_FILE, 'r') as key_file:
-            dropbox_key = key_file.read()
-
-        dbx = dropbox.Dropbox(dropbox_key)
-        log_files.sort()
-        try:
-            file_count = len(log_files)
-            for index, log_file in enumerate(log_files):
-                full_path = join(constants.LOG_DIRECTORY, log_file)
-                message_string = "Uploading file:\n{0} of {1}\n{2}".format(index+1, file_count, log_file)
-                self.ui.upload_alert_view.set_alert_message(message_string)
-                with open(full_path, "rb") as currFile:
-                        dbx.files_upload(currFile.read(), "/Unprocessed/" + log_file)
-                        os.rename(full_path, join(constants.ORIGINAL_LOG_DIRECTORY, log_file))
-            self.ui.upload_alert_view.set_alert_message("Upload Complete!")
-            time.sleep(3)
-            self.ui.hide_upload_alert()
-
-
-        except Exception as ex:
-            self.ui.upload_alert_view.set_alert_title("Upload Failed")
-            if hasattr(ex, 'message'):
-                self.ui.upload_alert_view.set_alert_message(ex.message)
-                print(ex.message)
-            else:
-                self.ui.upload_alert_view.set_alert_message(ex)
-                print(ex)
-            
-            time.sleep(3)
-            self.ui.hide_upload_alert()
-        finally:
-            self.ui.hide_upload_alert()
+#        log_files = [f for f in listdir(constants.LOG_DIRECTORY) if isfile(join(constants.LOG_DIRECTORY, f)) and f != os.path.basename(self.log_file.name) and f.endswith(".csv")]
+#        if not log_files:
+#            self.ui.upload_alert_view.set_alert_message("No files to upload")
+#            time.sleep(3)
+#            self.ui.hide_upload_alert()
+#            return
+#
+#        self.ui.upload_alert_view.set_alert_message("Connecting to Dropbox")
+#        import dropbox
+#        dropbox_key = ""
+#        with open(constants.DROPBOX_KEY_FILE, 'r') as key_file:
+#            dropbox_key = key_file.read()
+#
+#        dbx = dropbox.Dropbox(dropbox_key)
+#        log_files.sort()
+#        try:
+#            file_count = len(log_files)
+#            for index, log_file in enumerate(log_files):
+#                full_path = join(constants.LOG_DIRECTORY, log_file)
+#                message_string = "Uploading file:\n{0} of {1}\n{2}".format(index+1, file_count, log_file)
+#                self.ui.upload_alert_view.set_alert_message(message_string)
+#                with open(full_path, "rb") as currFile:
+#                        dbx.files_upload(currFile.read(), "/Unprocessed/" + log_file)
+#                        os.rename(full_path, join(constants.ORIGINAL_LOG_DIRECTORY, log_file))
+#            self.ui.upload_alert_view.set_alert_message("Upload Complete!")
+#            time.sleep(3)
+#            self.ui.hide_upload_alert()
+#
+#
+#        except Exception as ex:
+#            self.ui.upload_alert_view.set_alert_title("Upload Failed")
+#            if hasattr(ex, 'message'):
+#                self.ui.upload_alert_view.set_alert_message(ex.message)
+#                print(ex.message)
+#            else:
+#                self.ui.upload_alert_view.set_alert_message(ex)
+#                print(ex)
+#            
+#            time.sleep(3)
+#            self.ui.hide_upload_alert()
+#        finally:
+#            self.ui.hide_upload_alert()
 
 
     def get_file_name_from_date(self, date):
@@ -229,7 +236,8 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
 
         if message == "UBX-NAV-PVT":
             self.log_to_file(data)
-            
+            if data.valid is None:
+                return
             if self.__start_date is None and data.valid.validDate and data.valid.validTime:
                 # Finally got an accurate date and time.
                 since_start = timedelta(seconds=(time.time()-self.__time_since_start))
@@ -299,9 +307,10 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
         Sends commands to the u-blox chip to initialize it.
     '''
     def configureUBX(self):
+        pass
         #self.config.forceColdStart()
-        self.config.setMessageRate(1, 7, 1)
-        self.config.setRateSettings(100, 1, 1)
+        #self.config.setMessageRate(1, 7, 1)
+        #self.config.setRateSettings(100, 1, 1)
 
     '''
         Checks if we have an IP address.
