@@ -1,8 +1,9 @@
-LOG_DIRECTORY = "/home/pi/Tracks"
-ORIGINAL_LOG_DIRECTORY = "/home/pi/Tracks/Original"
-GPX_LOG_DIRECTORY = "/home/pi/Tracks/GPX"
-COLOR_MODE_FILE = "/home/pi/color_mode.txt"
-DROPBOX_KEY_FILE = "/home/pi/dropbox_key.txt"
+HOME_DIRECTORY = "/home/pi"
+LOG_DIRECTORY = HOME_DIRECTORY + "/Tracks"
+ORIGINAL_LOG_DIRECTORY = HOME_DIRECTORY + "/Tracks/Original"
+GPX_LOG_DIRECTORY = HOME_DIRECTORY + "/Tracks/GPX"
+COLOR_MODE_FILE = HOME_DIRECTORY + "/color_mode.txt"
+DROPBOX_KEY_FILE = HOME_DIRECTORY + "/dropbox_key.txt"
 BACKGROUND_COLOR = "white"
 TEXT_COLOR = "black"
 
@@ -11,6 +12,9 @@ GPS_BAUD_RATE = 38400
 
 OBD_SERIAL_PORT = "/dev/ttyUSB0"
 OBD_BAUD_RATE = 9600
+
+class GPSMessages:
+	UBX_NAV_PVT = "UBX-NAV-PVT"
 
 class OBDTypes:
 	RPM = "RPM"
