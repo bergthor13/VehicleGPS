@@ -20,7 +20,7 @@ from classes.ui_controller import UI_Controller
 from classes.pub_sub import Subscriber, Publisher
 from classes.data.pvt import *
 from classes.history_delegate import HistoryDelegate
-from geopy.distance import vincenty
+from geopy.distance import geodesic
 import logging
 
 
@@ -220,7 +220,7 @@ class GpsApplication(Subscriber, Publisher, HistoryDelegate):
                     if not gpsHistory[1].flags.gnssFixOK: return
                     if gpsHistory[1].fixType < 1: return
                     if gpsHistory[1].gSpeed > 200: return
-                    self.__distance += vincenty((gpsHistory[1].lat, gpsHistory[1].lon), (data.lat, data.lon)).meters/1000
+                    self.__distance += geodesic((gpsHistory[1].lat, gpsHistory[1].lon), (data.lat, data.lon)).meters/1000
 
     def initializeObdConnection(self):
         obdSerial = self.getSerial(constants.OBD_SERIAL_PORT, constants.OBD_BAUD_RATE)
